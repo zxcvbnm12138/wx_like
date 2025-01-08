@@ -4,6 +4,7 @@ import { common } from '@kit.AbilityKit';
 import { fake_all_data, fake_data, personal_data } from '../utils/dataModel';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { sortPyqData, sortPyqDataList } from '../utils/tool';
+import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
 
 interface tabBar{
   tabIndex:number
@@ -15,8 +16,6 @@ interface tabBar{
 @Component
 struct Index {
   private context = getContext(this) as common.UIAbilityContext;
-  @StorageProp('fake_person_data') fake_person_data: personal_data[]|undefined = undefined
-
   @State selectIndex: number = 0
   @State tabBarList: tabBar[] = [
     { tabIndex: 0, url: 'app.media.chat', title: '微信' },
@@ -24,20 +23,19 @@ struct Index {
     { tabIndex: 2, url: 'app.media.faxian', title: '发现' },
     { tabIndex: 3, url: 'app.media.wo2', title: '我' },
   ];
-
+  @State fake_person_data: personal_data[]|undefined = undefined
+  @State pyq_all_Page_data:pyq_all_Page_data[] =[]
   aboutToAppear(): void {
     this.fake_person_data = fake_data(this.context.getApplicationContext())
     this.fake_person_data.push(fake_all_data(this.context.getApplicationContext()))
 
     this.fake_person_data=sortPyqData(this.fake_person_data)
     this.fake_person_data=sortPyqDataList(this.fake_person_data)
+
+    this.pyq_all_Page_data = combineAndSortData(this.fake_person_data)
+    AppStorage.setOrCreate('pyq_all_Page_data',this.pyq_all_Page_data)
+
     AppStorage.setOrCreate('fake_person_data',this.fake_person_data)
-    // let logIndex = 0
-    // for (let index = 0; index < JSON.stringify(this.fake_person_data).length / 1000; index++) {
-    //   let str = JSON.stringify(this.fake_person_data).substring(logIndex, logIndex + 1000)
-    //   hilog.fatal(1, 'new_person_data:', '%{public}s', str);
-    //   logIndex = logIndex + 1000
-    // }
   }
 
   @Builder

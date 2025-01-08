@@ -12,6 +12,7 @@ import { Pyq_Layout } from '../components/pyq_Layout';
 import AreaPickerDialog from '../components/AreaPickerDialog/AreaPickerDialog';
 import { common } from '@kit.AbilityKit';
 import { Picture_analysis } from '../components/Picture_analysis';
+import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
 
 @Entry
 @Component
@@ -19,6 +20,7 @@ struct Pyq_all_Page {
 
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') fake_personal_data: personal_data[] = []
+  @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = []
   @State profileSrcPixmap: PixelMap = image_show(this.fake_personal_data[0].data.avatar)
   @State listlocation: boolean = false
   old_wx_number: string = ''
@@ -63,19 +65,19 @@ struct Pyq_all_Page {
           buttonStyle: ButtonStyleMode.EMPHASIZED,
           background: '#00E050',
           action: () => {
-            hilog.fatal(1, '新数据',
-              'new_wx_number:' + this.new_wx_number + '\n' +
-                'new_avater:' + this.new_avater + '\n' +
-                'new_nickname:' + this.new_nickname + '\n' +
-                'new_district:' + this.new_district + '\n' +
-                'new_content:' + this.new_content + '\n' +
-                'new_gallery:' + this.new_gallery.toString() + '\n' +
-                'new_location:' + this.new_location + '\n' +
-                'new_love_sum:' + this.new_love_sum + '\n' +
-                'new_comment_num:' + this.new_comment_num + '\n' +
-                'new_comment_content:' + this.new_comment_content.toString() + '\n' +
-                'new_share_time:' + this.new_share_time + '\n'
-            )
+            // hilog.fatal(1, '新数据',
+            //   'new_wx_number:' + this.new_wx_number + '\n' +
+            //     'new_avater:' + this.new_avater + '\n' +
+            //     'new_nickname:' + this.new_nickname + '\n' +
+            //     'new_district:' + this.new_district + '\n' +
+            //     'new_content:' + this.new_content + '\n' +
+            //     'new_gallery:' + this.new_gallery.toString() + '\n' +
+            //     'new_location:' + this.new_location + '\n' +
+            //     'new_love_sum:' + this.new_love_sum + '\n' +
+            //     'new_comment_num:' + this.new_comment_num + '\n' +
+            //     'new_comment_content:' + this.new_comment_content.toString() + '\n' +
+            //     'new_share_time:' + this.new_share_time + '\n'
+            // )
 
             if (this.new_gallery.length !== 0) {
               this.fake_personal_data[0].data.pyq_first4_pic.push(...this.new_gallery)
@@ -141,6 +143,7 @@ struct Pyq_all_Page {
             }
             this.fake_personal_data[0] = this.new_person_data
             this.fake_personal_data = sortPyqData(this.fake_personal_data)
+            this.pyq_all_Page_data = combineAndSortData(this.fake_personal_data)
 
             this.new_wx_number = ''
             this.new_avater = this.fake_personal_data[0].data.avatar

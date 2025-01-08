@@ -3,6 +3,50 @@ import { personal_data, personal_every_year_pyq_data, pyq_data } from '../utils/
 import { image_show } from '../utils/tool';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
+export interface pyq_all_Page_data {
+  wx_number:string;
+  avatar: string;
+  nickname: string;
+  district: string;
+  pyq_first4_pic: string[];
+  content: string;
+  gallery: string[];
+  location: string;
+  love_num: number;
+  comment_num: number;
+  comment_content: string[];
+  show_time: string;
+  share_time: number;
+}
+export function  combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
+  let combinedData: pyq_all_Page_data[] = [];
+
+  data.forEach(person => {
+    person.data.pyq_data.forEach(yearData => {
+      yearData.pyq_data_list.forEach(pyqItem => {
+        combinedData.push({
+          wx_number: person.wx_number,
+          avatar: person.data.avatar,
+          nickname: person.data.nickname,
+          district: person.data.district,
+          pyq_first4_pic: person.data.pyq_first4_pic,
+          content: pyqItem.content,
+          gallery: pyqItem.gallery,
+          location: pyqItem.location,
+          love_num: pyqItem.love_num,
+          comment_num: pyqItem.comment_num,
+          comment_content: pyqItem.comment_content,
+          show_time: pyqItem.show_time,
+          share_time: pyqItem.share_time
+        } as pyq_all_Page_data);
+      });
+    });
+  });
+
+  combinedData.sort((a, b) => b.share_time - a.share_time);
+  return combinedData;
+}
+
 
 @Entry
 @Component
@@ -10,15 +54,19 @@ struct Pyq_all_Page {
   @State listlocation :boolean = false
   @State textover:string = '全文'
   @State maxLinesindex:number = 999
-  initlines:number = 0
-  isover:boolean = false
-  isVisibility:boolean = false
-   // @StorageProp('bottomRectHeight') bottomRectHeight: number = 0;
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageProp('fake_person_data') fake_person_data: personal_data[]=[]
+  @StorageProp('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
+  // initlines:number = 0
+  // isover:boolean = false
+  // isVisibility:boolean = false
   controller: TextController = new TextController()
   private listScroller: Scroller = new Scroller();
 
+
+  aboutToAppear(): void {
+
+  }
 
   build() {
     Stack(){
@@ -77,25 +125,22 @@ struct Pyq_all_Page {
           }
         }
         .width('100%')
-
-        ForEach(this.fake_person_data,(item1:personal_data,index)=>{
-          ForEach(item1.data.pyq_data,(item2:personal_every_year_pyq_data,index)=>{
-            ForEach(item2.pyq_data_list,(item3:pyq_data,index)=>{
+      ForEach(this.pyq_all_Page_data,(item:pyq_all_Page_data,index)=>{
                 ListItem(){
                   Row({space:5}){
                     Column(){
-                      Image(image_show(item1.data.avatar))
+                      Image(image_show(item.avatar))
                         .width(50)
                         .height(50)
                         .objectFit(ImageFit.Cover)
                         .borderRadius(8)
                     }
                     Column(){
-                      Text(item1.data.nickname)
+                      Text(item.nickname)
                         .border({width:0})
                         .fontColor('#586b95')
                         .fontSize(18)
-                      Text(item3.content,{ controller: this.controller })
+                      Text(item.content,{ controller: this.controller })
                         .maxLines(this.maxLinesindex)
                         .textOverflow({overflow:TextOverflow.Clip})
                         .border({width:0})
@@ -128,7 +173,7 @@ struct Pyq_all_Page {
                       //     }
                       //   })
                       Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }){
-                        ForEach(item3.gallery,(pic:string,index)=>{
+                        ForEach(item.gallery,(pic:string,index)=>{
                           GridItem(){
                             Image(image_show(pic))
                               .objectFit(ImageFit.Cover)
@@ -140,10 +185,10 @@ struct Pyq_all_Page {
                       .width('100%')
                       .margin({top:10})
 
-                      Text(item3.location).border({width:0}).fontColor('#586b95').fontSize(14)
+                      Text(item.location).border({width:0}).fontColor('#586b95').fontSize(14)
                         .margin({top:5})
                       Row(){
-                        Text(item3.show_time).fontColor('#BEBEBE').fontSize(12)
+                        Text(item.show_time).fontColor('#BEBEBE').fontSize(12)
                         Image($r('app.media.ICO28_more')).width(30)
                           .height(23)
                           .backgroundColor('#F7F7F7').borderRadius(5)
@@ -174,8 +219,6 @@ struct Pyq_all_Page {
                 .margin({top:32})
                 .padding({right:10,left:10,bottom:10})
             })
-          })
-        })
 
       }
       .divider({
