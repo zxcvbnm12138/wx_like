@@ -16,6 +16,7 @@ import { Picture_analysis } from '../components/Picture_analysis';
 @Entry
 @Component
 struct Pyq_all_Page {
+
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') fake_personal_data: personal_data[] = []
   @State profileSrcPixmap: PixelMap = image_show(this.fake_personal_data[0].data.avatar)
