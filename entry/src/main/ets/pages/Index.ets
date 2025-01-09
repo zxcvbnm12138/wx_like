@@ -5,6 +5,8 @@ import { fake_all_data, fake_data, personal_data } from '../utils/dataModel';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { sortPyqData, sortPyqDataList } from '../utils/tool';
 import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
+import { Txl_Page } from '../components/txl_Page';
+import { Wo_Page } from '../components/wo_Page';
 
 interface tabBar{
   tabIndex:number
@@ -43,11 +45,11 @@ struct Index {
     Column() {
       if (this.selectIndex == tabindex) {
         Image($r(icon))
-          .fillColor(Color.Green)
+          .fillColor('#07C160')
           .width(23)
           .margin({bottom:3})
         Text(title)
-          .fontColor(Color.Green)
+          .fontColor('#07C160')
           .fontSize(12)
           .lineHeight(18)
       } else {
@@ -70,7 +72,7 @@ struct Index {
     .tabBar(this.taBarBuilder(this.tabBarList[0].tabIndex, this.tabBarList[0].url, this.tabBarList[0].title))
 
     TabContent() {
-      Text('通讯录内容')
+      Txl_Page()
     }.tabBar(this.taBarBuilder(this.tabBarList[1].tabIndex, this.tabBarList[1].url, this.tabBarList[1].title))
 
     TabContent() {
@@ -78,7 +80,7 @@ struct Index {
     }.tabBar(this.taBarBuilder(this.tabBarList[2].tabIndex, this.tabBarList[2].url, this.tabBarList[2].title))
 
     TabContent() {
-      Text('我内容')
+      Wo_Page()
     }.tabBar(this.taBarBuilder(this.tabBarList[3].tabIndex, this.tabBarList[3].url, this.tabBarList[3].title))
     }
     .barPosition(BarPosition.End)

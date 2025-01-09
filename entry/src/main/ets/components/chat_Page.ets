@@ -49,7 +49,6 @@ export struct Chat_Page {
                     .lineHeight(17)
                 }
                 .width('100%')
-                .border({ width: 0 })
                 .justifyContent(FlexAlign.SpaceBetween)
                 .alignItems(VerticalAlign.Top)
 
@@ -69,22 +68,21 @@ export struct Chat_Page {
                 .justifyContent(FlexAlign.SpaceBetween)
               }
               .layoutWeight(1)
-              .height('100%')
-              .border({ width: {bottom:1},color:'#D7D7D7' })
+              .height(51)
               .margin({left:10})
-              .padding({ top:10,right: 10 })
+              .justifyContent(FlexAlign.Center)
             }
+            .alignItems(VerticalAlign.Center)
             .width('100%')
             .height(66)
-            .border({ width: 0 })
           }
-          .padding({ left: 10 })
+          .padding({ left: 15,right: 10,top: 5, bottom: 5 })
         })
       }
       .margin({ top: 54 })
-      .border({ width: 0 })
       .backgroundColor('#ffffff')
       .scrollBar(BarState.Off)
+      .divider({ strokeWidth: 0.5, color: '#D7D7D7' ,startMargin:76})
 
     }
     .width('100%')
