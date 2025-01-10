@@ -1,6 +1,6 @@
 import { LengthMetrics, router } from '@kit.ArkUI';
 import { personal_data, personal_every_year_pyq_data, pyq_data } from '../utils/dataModel';
-import { image_show } from '../utils/tool';
+import { Arraysc, image_show } from '../utils/tool';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export interface pyq_all_Page_data {
@@ -52,6 +52,15 @@ export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
   return combinedData;
 }
 
+function getRandomChineseName(): string {
+  const firstNames = ['赵', '钱', '孙', '李', '周', '吴', '郑', '王', '冯', '陈', '褚', '卫', '蒋', '沈', '韩', '杨', '朱', '秦', '尤', '许'];
+  const lastNames = ['伟', '芳', '娜', '秀英', '敏', '静', '丽', '强', '磊', '军', '洋', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平'];
+
+  const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+  const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+
+  return firstName + lastName;
+}
 
 @Entry
 @Component
@@ -203,7 +212,6 @@ struct Pyq_all_Page {
                         .width(16)
                         .height(16)
                         .onClick(()=>{
-                          // this.pyq_all_Page_data.splice(index,1)
                           // 假设 index 是要删除的元素的索引
                           let deletedElement = this.pyq_all_Page_data.splice(index, 1)[0];
                           let shareTimeToDelete = deletedElement.share_time;
@@ -233,19 +241,51 @@ struct Pyq_all_Page {
                 .width('100%')
                 .justifyContent(FlexAlign.SpaceBetween)
 
-                Row({ space: 10 }) {
-                  Image($r('app.media.love')).width(20).fillColor('#586b95')
-                  Text('陈爱银, 陈爱银').fontColor('#586b95').fontSize(16)
-                    .lineHeight(25)
+                List({space:0}){
+                  if (item.love_num!== 0 ){
+                  ListItem(){
+                      Row() {
+                        Text(){
+                          Span('♡ ')
+                          ForEach(Arraysc(item.love_num),(num:number,index)=>{
+                            Span(getRandomChineseName())
+                            if (Arraysc(item.love_num).length !== index+1) {
+                              Span(', ')
+                            }
+                          })
+                        }
+                        .fontSize(13)
+                        .width('100%')
+                        .fontColor('#586b95')
+                        .borderRadius(0)
+                      }
+                      .alignItems(VerticalAlign.Top)
+                    }.padding( 5 )
+                  }
+                  if (item.comment_num!== 0 ){
+                    ListItem(){
+                      Column({space:0}){
+                        ForEach(Arraysc(item.comment_num),(item:number,index)=>{
+                          Text(){
+                            Span('陈爱银:')
+                              .fontColor('#586b95')
+                            Span('你就好咯你就好咯你就好咯你就好咯你就好咯你就好咯你就好咯你就好咯你就好咯你就好咯')
+                          }
+                          .fontSize(13)
+                          .lineHeight(18)
+                          .width('100%')
+                        })
+                      }
+                    }.padding( 5 )
+                  }
                 }
-                .border({ width: 0 })
                 .backgroundColor('#F7F7F7')
                 .width('100%')
                 .margin({ top: 5 })
-                .padding({ left: 5 })
+
                 .borderRadius(5)
-                .height(30)
-                .alignItems(VerticalAlign.Center)
+                .divider({strokeWidth:0.3,color:'#ffc4c3c3' })
+
               }
               .padding({ top: 2 })
               .layoutWeight(1)

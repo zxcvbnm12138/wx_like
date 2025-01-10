@@ -4,27 +4,28 @@ import { personal_data, pyq_data } from '../utils/dataModel';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
 
-interface result{
-  result : pyq_data
+interface result {
+  result: pyq_data
 }
+
 @Entry
 @Component
 struct Dianzan_Page {
-
   @StorageProp('topRectHeight') topRectHeight: number = 0;
-  @StorageLink('fake_person_data') personal_data: personal_data[]=[]
+  @StorageLink('fake_person_data') personal_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
   @State love_sum: number[] = []
-  @State fake_person_data :pyq_data|undefined=undefined
+  @State fake_person_data: pyq_data | undefined = undefined
 
   aboutToAppear(): void {
 
     const res = router.getParams() as result
     this.fake_person_data = res.result
     this.love_sum = Arraysc(this.fake_person_data.love_num)
-    hilog.fatal(1,'4','fake_person_data'+JSON.stringify(this.fake_person_data))
-    hilog.fatal(1,'4','love_sum'+this.love_sum)
+    hilog.fatal(1, '4', 'fake_person_data' + JSON.stringify(this.fake_person_data))
+    hilog.fatal(1, '4', 'love_sum' + this.love_sum)
   }
+
   build() {
     Column() {
       Row() {
@@ -57,7 +58,10 @@ struct Dianzan_Page {
                   .width(50)
                   .height(50)
                   .borderRadius(8)
-                  .onClick(()=>{
+                  .onClick(() => {
+                    router.pushUrl({
+                      url: 'pages/detail_Page',
+                    })
                   })
               }
 
@@ -65,7 +69,12 @@ struct Dianzan_Page {
                 Text(this.personal_data[0].data.nickname)
                   .fontColor('#586b95')
                   .fontSize(18)
-                  .margin({bottom:8})
+                  .margin({ bottom: 8 })
+                  .onClick(() => {
+                    router.pushUrl({
+                      url: 'pages/detail_Page',
+                    })
+                  })
                 Text(this.fake_person_data?.content)
                   .border({ width: 0 })
                   .width('100%')
@@ -73,7 +82,7 @@ struct Dianzan_Page {
 
 
                 Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
-                  ForEach(this.fake_person_data?.gallery, (item:string,index) => {
+                  ForEach(this.fake_person_data?.gallery, (item: string, index) => {
                     Image(image_show(item))
                       .objectFit(ImageFit.Cover)
                       .width(96)
@@ -81,24 +90,23 @@ struct Dianzan_Page {
                   })
                 }
                 .width('100%')
-                .margin({ top: 10 ,bottom:10})
+                .margin({ top: 10, bottom: 10 })
 
-                  Text(this.fake_person_data?.location)
-                    .fontColor('#586b95')
-                    .fontSize(14)
-                    .margin({ top: 2 })
-
+                Text(this.fake_person_data?.location)
+                  .fontColor('#586b95')
+                  .fontSize(14)
+                  .margin({ top: 2 })
 
 
                 Row() {
-                  Row({space:5}){
+                  Row({ space: 5 }) {
                     Text(this.fake_person_data?.show_time)
                       .fontColor('#BEBEBE')
                       .fontSize(12)
                     Image($r('app.media.del'))
                       .width(16)
                       .height(16)
-                      .onClick(()=>{
+                      .onClick(() => {
                         let shareTimeToDelete = this.fake_person_data!.share_time;
                         let wxNumberToDelete = this.personal_data[0].wx_number;
                         let yearToDelete = new Date(shareTimeToDelete).getFullYear();
@@ -119,9 +127,9 @@ struct Dianzan_Page {
                         router.back()
 
 
-
                       })
                   }
+
                   Image($r('app.media.ICO28_more'))
                     .width(30)
                     .height(23)
@@ -131,38 +139,95 @@ struct Dianzan_Page {
                 .width('100%')
                 .justifyContent(FlexAlign.SpaceBetween)
 
-                Row({ space: 10 }) {
-                  Image($r('app.media.love'))
-                    .width(20)
-                    .fillColor('#586b95')
-                  Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(3), cross: LengthMetrics.vp(3) } }) {
-                    ForEach(this.love_sum, () => {
-                      Image($r('app.media.test_avater'))
-                        .width(27)
-                        .height(27)
-                        .borderRadius(2)
-
-                    })
-                  }
-                  .layoutWeight(1)
-                }
-                .backgroundColor('#F7F7F7')
-                .width('100%')
-                .margin({ top: 5 })
-                .padding(5)
-                .borderRadius(5)
-                .alignItems(VerticalAlign.Top)
               }
               .padding({ top: 2 })
               .layoutWeight(1)
               .width('100%')
               .alignItems(HorizontalAlign.Start)
             }
-            .width('100%')
             .alignItems(VerticalAlign.Top)
+
+            Row() {
+              Column({ space: 1 }) {
+                Row({ space: 8 }) {
+                  Image($r('app.media.love'))
+                    .width(18)
+                    .fillColor('#586b95')
+                    .margin({ top: 5 })
+                  Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(6.5), cross: LengthMetrics.vp(6) } }) {
+                    ForEach(this.love_sum, () => {
+                      Image($r('app.media.test_avater'))
+                        .width(31)
+                        .height(31)
+                        .borderRadius(2)
+                    })
+                  }
+                  .layoutWeight(1)
+                }
+                .backgroundColor('#F7F7F7')
+                .width('100%')
+                .padding(5)
+                .borderRadius(5)
+                .alignItems(VerticalAlign.Top)
+
+                Row({ space: 8 }) {
+                  Image($r('app.media.bubble'))
+                    .width(18)
+                    .fillColor('#586b95')
+                    .margin({ top: 5 })
+                  Column({space:10}) {
+                    ForEach(Arraysc(this.fake_person_data!.comment_num), (item: string, index) => {
+                      Row({ space: 5 }) {
+                        Image($r('app.media.test_avater'))
+                          .width(27)
+                          .height(27)
+                          .borderRadius(2)
+                        Column({ space: 5 }) {
+                          Row() {
+                            Text('陈爱银')
+                              .fontSize(11)
+                              .fontColor('#586b95')
+                            Text('2024年12月29日 13:09')
+                              .fontSize(11)
+                              .fontColor('#BEBEBE')
+                          }
+                          .width('100%')
+                          .justifyContent(FlexAlign.SpaceBetween)
+                          Row() {
+                            Text('哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟')
+                              .fontSize(14)
+                          }
+                          .width('100%')
+                        }
+                        .width('100%')
+                        .layoutWeight(1)
+                      }
+                      .alignItems(VerticalAlign.Top)
+                      .width('100%')
+                    })
+                  }
+                  .alignItems(HorizontalAlign.Center)
+                  .layoutWeight(1)
+                }
+                .backgroundColor('#F7F7F7')
+                .width('100%')
+                .padding(5)
+                .borderRadius(5)
+                .alignItems(VerticalAlign.Top)
+              }
+              .margin({ top: 15 })
+              .width('100%')
+            }
+            .width('100%')
           }
-          .padding({ right: 10, left: 10 })
-        }.padding({ top: 15, bottom: 5 })
+          .width('100%')
+        }
+        .padding({
+          top: 15,
+          bottom: 5,
+          right: 10,
+          left: 10
+        })
       }
       .width('100%')
       .layoutWeight(1)
