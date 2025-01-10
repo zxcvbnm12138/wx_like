@@ -2,6 +2,8 @@ import { LengthMetrics, router } from '@kit.ArkUI';
 import { Arraysc, image_show } from '../utils/tool';
 import { personal_data, pyq_data } from '../utils/dataModel';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
+
 interface result{
   result : pyq_data
 }
@@ -9,9 +11,9 @@ interface result{
 @Component
 struct Dianzan_Page {
 
-  @StorageProp('bottomRectHeight') bottomRectHeight: number = 0;
   @StorageProp('topRectHeight') topRectHeight: number = 0;
-  @StorageProp('fake_person_data') personal_data: personal_data[]=[]
+  @StorageLink('fake_person_data') personal_data: personal_data[]=[]
+  @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
   @State love_sum: number[] = []
   @State fake_person_data :pyq_data|undefined=undefined
 
@@ -81,14 +83,45 @@ struct Dianzan_Page {
                 .width('100%')
                 .margin({ top: 10 ,bottom:10})
 
-                Text(this.fake_person_data?.location)
-                  .fontColor('#586b95')
-                  .fontSize(14)
-                  .margin({ top: 2 })
+                  Text(this.fake_person_data?.location)
+                    .fontColor('#586b95')
+                    .fontSize(14)
+                    .margin({ top: 2 })
+
+
+
                 Row() {
-                  Text(this.fake_person_data?.show_time)
-                    .fontColor('#BEBEBE')
-                    .fontSize(12)
+                  Row({space:5}){
+                    Text(this.fake_person_data?.show_time)
+                      .fontColor('#BEBEBE')
+                      .fontSize(12)
+                    Image($r('app.media.del'))
+                      .width(16)
+                      .height(16)
+                      .onClick(()=>{
+                        let shareTimeToDelete = this.fake_person_data!.share_time;
+                        let wxNumberToDelete = this.personal_data[0].wx_number;
+                        let yearToDelete = new Date(shareTimeToDelete).getFullYear();
+
+                        this.personal_data.forEach(person => {
+                          if (person.wx_number === wxNumberToDelete) {
+                            person.data.pyq_data.forEach(yearData => {
+                              if (yearData.year === yearToDelete) {
+                                yearData.pyq_data_list = yearData.pyq_data_list.filter(pyqItem => {
+                                  return pyqItem.share_time !== shareTimeToDelete;
+                                })
+                              }
+                            })
+                          }
+                        });
+                        this.pyq_all_Page_data = combineAndSortData(this.personal_data)
+
+                        router.back()
+
+
+
+                      })
+                  }
                   Image($r('app.media.ICO28_more'))
                     .width(30)
                     .height(23)

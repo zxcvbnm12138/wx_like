@@ -59,13 +59,14 @@ struct Pyq_all_Page {
   @State listlocation: boolean = false
   @State maxLinesindex: number = 999
   @StorageProp('topRectHeight') topRectHeight: number = 0;
-  @StorageProp('fake_person_data') fake_person_data: personal_data[] = []
-  @StorageProp('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
+  @StorageLink('fake_person_data') fake_person_data: personal_data[] = []
+  @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
   controller: TextController = new TextController()
   private listScroller: Scroller = new Scroller();
+  @State bg_url:string = this.fake_person_data[0].data.bg as string
 
-  aboutToAppear(): void {
-
+  onPageShow(): void {
+    this.bg_url = this.fake_person_data[0].data.bg as string
   }
 
   build() {
@@ -99,7 +100,7 @@ struct Pyq_all_Page {
       List({ scroller: this.listScroller }) {
         ListItem() {
           Column() {
-            Image(image_show(this.fake_person_data[0].data.bg as string))
+            Image(image_show(this.bg_url))
               .height('33.3%')
               .width('100%')
             Row({ space: 9 }) {
@@ -173,11 +174,11 @@ struct Pyq_all_Page {
                   }
                   .border({ width: 0 })
                   .padding(5)
-                  // .height(40)
                   .alignItems(VerticalAlign.Center)
-                  .margin({ left: 10 })
                   .backgroundColor('#F7F7F7')
-                } else {
+                  .margin({ top: 10 })
+                }
+                else {
                   Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
                     ForEach(item.gallery, (pic: string, index) => {
                       Image(image_show(pic))
@@ -189,10 +190,42 @@ struct Pyq_all_Page {
                   .width('100%')
                   .margin({ top: 10 })
                 }
+
                 Text(item.location).border({ width: 0 }).fontColor('#586b95').fontSize(14)
                   .margin({ top: 5 })
+
                 Row() {
-                  Text(item.show_time).fontColor('#BEBEBE').fontSize(12)
+                  Row({space:5}){
+                    Text(item.show_time).fontColor('#BEBEBE').fontSize(12)
+                    if (item.wx_number == this.fake_person_data[0].wx_number)
+                    {
+                      Image($r('app.media.del'))
+                        .width(16)
+                        .height(16)
+                        .onClick(()=>{
+                          // this.pyq_all_Page_data.splice(index,1)
+                          // 假设 index 是要删除的元素的索引
+                          let deletedElement = this.pyq_all_Page_data.splice(index, 1)[0];
+                          let shareTimeToDelete = deletedElement.share_time;
+                          let wxNumberToDelete = deletedElement.wx_number;
+                          let yearToDelete = new Date(shareTimeToDelete).getFullYear();
+                          // 遍历 personal_data 数组，找到并删除对应的 pyq_data 元素
+                          this.fake_person_data.forEach(person => {
+                            if (person.wx_number === wxNumberToDelete) {
+                              person.data.pyq_data.forEach(yearData => {
+                                if (yearData.year === yearToDelete) {
+                                  yearData.pyq_data_list = yearData.pyq_data_list.filter(pyqItem => {
+                                    return pyqItem.share_time !== shareTimeToDelete;
+                                  })
+                                }
+                              })
+                            }
+                          });
+
+                        })
+                    }
+                  }
+
                   Image($r('app.media.ICO28_more')).width(30)
                     .height(23)
                     .backgroundColor('#F7F7F7').borderRadius(5)
@@ -225,7 +258,6 @@ struct Pyq_all_Page {
           .margin({ top: 32 })
           .padding({ right: 10, left: 10, bottom: 10 })
         })
-
       }
       .divider({
         strokeWidth: 0.5,

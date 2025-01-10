@@ -188,3 +188,12 @@ export function sortPyqDataList(users: personal_data[]): personal_data[] {
   });
   return sortedUsers;
 }
+
+export  function logoutput(obj:object,name:string){
+  let logIndex = 0
+  for (let index = 0; index < JSON.stringify(obj).length / 1000; index++) {
+    let str = JSON.stringify(obj).substring(logIndex, logIndex + 1000)
+    hilog.fatal(1, `${name}:`, '%{public}s', str);
+    logIndex = logIndex + 1000
+  }
+}

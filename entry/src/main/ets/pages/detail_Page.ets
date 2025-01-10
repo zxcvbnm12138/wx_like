@@ -17,7 +17,7 @@ struct Detail_Page {
         Image($r('app.media.back'))
           .width(20)
           .onClick(()=>{
-            router.back({url:'pages/pyq_all_Page'})
+            router.back()
           })
           .border({ width: 0})
       }

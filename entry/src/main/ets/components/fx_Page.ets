@@ -54,7 +54,7 @@ export struct Fx_Page {
         }
         .backgroundColor('#ffffff')
         .onClick(()=>{
-          router.pushUrl({url:'pages/pyq_all_Page'},router.RouterMode.Single)
+          router.pushUrl({url:'pages/pyq_all_Page'})
         })
 
 

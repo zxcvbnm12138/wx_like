@@ -95,7 +95,7 @@ export struct Txl_Page {
       .fontSize(10)
       .backgroundColor('#ededed')
       .width("100%")
-      .padding(10)
+      .padding({left: 10,top:5,bottom:5})
   }
 
   build() {

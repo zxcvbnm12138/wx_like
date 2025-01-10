@@ -1,5 +1,5 @@
 import { CustomContentDialog, router } from '@kit.ArkUI';
-import { formatTime, ImageUploadLocal, image_show, sortPyqData, sortPyqDataList } from '../utils/tool';
+import { formatTime, image_show, ImageUploadLocal, sortPyqData, sortPyqDataList, logoutput } from '../utils/tool';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import {
   convertTime,
@@ -30,6 +30,7 @@ function parseUrl(url: string): GeneratedTypeLiteralInterface_1 {
   }
   throw new Error('Invalid URL');
 }
+
 
 @Entry
 @Component
@@ -64,6 +65,13 @@ struct Pyq_all_Page {
   @State image_url: string = ''
   @State url: string = ''
   @State bg_url: string = this.fake_personal_data[0].data.bg as string
+  private context = getContext(this) as common.UIAbilityContext;
+  private listScroller: Scroller = new Scroller();
+  @Styles
+  TexInput_commonstyles() {
+    .width('100%')
+    .borderRadius(5)
+  }
   dialogController: CustomDialogController = new CustomDialogController({
     builder: CustomContentDialog({
       contentBuilder: () => {
@@ -96,11 +104,11 @@ struct Pyq_all_Page {
             //     'new_share_time:' + this.new_share_time + '\n'
             // )
 
+            //判断时候有新图片，如果有新图片就直接插入到pyq_first4_pic数组中
             if (this.new_gallery.length !== 0) {
               this.fake_personal_data[0].data.pyq_first4_pic.push(...this.new_gallery)
             }
-
-            let new_year = new Date(this.new_share_time).getFullYear()
+            //构建新的pyq_data
             let new_pyq_data: pyq_data = {
               content: this.new_content,
               gallery: this.new_gallery,
@@ -113,13 +121,18 @@ struct Pyq_all_Page {
               link_image_url: this.image_url,
             }
 
+            //获取要发布的朋友圈的年份
+            let new_year = new Date(this.new_share_time).getFullYear()
+            //判断年份是否已经存在
             let isIn: boolean = false
             for (const obj of this.fake_personal_data[0].data.pyq_data) {
+              //若年份已存在，直接插入新数据
               if (Object.values(obj).includes(new_year)) {
                 isIn = true
                 obj.pyq_data_list.unshift(new_pyq_data)
               }
             }
+            //若年份不存在，构建新的personal_every_year_pyq_data数据，然后插入到pyq_data数组中
             if (!isIn) {
               let new_pyq_data_list: pyq_data[] = []
               new_pyq_data_list.push(new_pyq_data)
@@ -131,16 +144,20 @@ struct Pyq_all_Page {
               this.fake_personal_data[0].data.pyq_data.unshift(new_personal_every_year_pyq_data)
             }
 
+            //判断微信号是否为空，为空则使用旧数据
             if (this.new_wx_number == '') {
               this.new_wx_number = this.old_wx_number
             }
-
+            //判断昵称是否为空，为空则使用旧数据
             if (this.new_nickname == '') {
               this.new_nickname = this.fake_personal_data[0].data.nickname
             }
+            //判断地区是否为空，为空则使用旧数据
             if (this.new_district == '') {
               this.new_district = this.fake_personal_data[0].data.district
             }
+
+            //构建新的personal_detail_data数据
             this.new_personal_detail_data = {
               avatar: this.new_avater,
               nickname: this.new_nickname,
@@ -149,22 +166,22 @@ struct Pyq_all_Page {
               pyq_data: this.fake_personal_data[0].data.pyq_data,
               bg: this.bg_url
             }
+            //构建新的personal_data数据
             this.new_person_data = {
               wx_number: this.new_wx_number,
               data: this.new_personal_detail_data
             }
-
-            let logIndex = 0
-            for (let index = 0; index < JSON.stringify(this.new_person_data).length / 1000; index++) {
-              let str = JSON.stringify(this.new_person_data).substring(logIndex, logIndex + 1000)
-              hilog.fatal(1, 'new_person_data:', '%{public}s', str);
-              logIndex = logIndex + 1000
-            }
-
+            //打印新personal_data的数据
+            logoutput(this.new_person_data,'new_person_data')
+            //更新personal_data[0]
             this.fake_personal_data[0] = this.new_person_data
+            this.pyq_personal_Page_data = this.new_person_data
+            //按照朋友圈的年份进行降序排序
             this.fake_personal_data = sortPyqData(this.fake_personal_data)
-            this.pyq_all_Page_data = combineAndSortData(this.fake_personal_data)
+            this.fake_personal_data = sortPyqDataList(this.fake_personal_data)
 
+            this.pyq_all_Page_data = combineAndSortData(this.fake_personal_data)
+            //重置数据
             this.new_wx_number = ''
             this.new_avater = this.fake_personal_data[0].data.avatar
             this.new_nickname = ''
@@ -187,15 +204,9 @@ struct Pyq_all_Page {
       ],
     }),
   });
-  private context = getContext(this) as common.UIAbilityContext;
-  private listScroller: Scroller = new Scroller();
 
-  @Styles
-  TexInput_commonstyles() {
-    .width('100%')
-    .borderRadius(5)
-  }
 
+  @State pyq_personal_Page_data: personal_data = this.fake_personal_data[0]
   @Builder
   buildContent(): void {
     Scroll() {
@@ -367,6 +378,7 @@ struct Pyq_all_Page {
   }
 
   aboutToAppear(): void {
+    // this.back_pyq_personal_Page_data = this.fake_personal_data[0]
     this.old_wx_number = this.fake_personal_data[0].wx_number
     //省市区选择器自定义弹窗
     this.areaController = new CustomDialogController({
@@ -387,7 +399,11 @@ struct Pyq_all_Page {
       customStyle: true,
     })
   }
-
+  onPageShow(): void {
+    // this.fake_personal_data = this.fake_personal_data
+    logoutput(this.fake_personal_data[0],'删除后的数据')
+    this.pyq_personal_Page_data = this.fake_personal_data[0]
+  }
   build() {
     Stack() {
       Row() {
@@ -429,14 +445,14 @@ struct Pyq_all_Page {
                 }
               })
             Row({ space: 9 }) {
-              Text(this.fake_personal_data[0].data.nickname)
+              Text(this.pyq_personal_Page_data.data.nickname)
                 .fontSize(20)
                 .fontColor('#ffffff')
                 .fontWeight(FontWeight.Bold)
                 .margin({ top: 8 })
                 .layoutWeight(1)
                 .textAlign(TextAlign.End)
-              Image(image_show(this.fake_personal_data[0].data.avatar))
+              Image(image_show(this.pyq_personal_Page_data.data.avatar))
                 .width(70)
                 .height(70)
                 .borderRadius(10)
@@ -477,14 +493,17 @@ struct Pyq_all_Page {
         .margin({ top: 32 })
         .padding({ right: 10, left: 10 })
 
-        ForEach(this.fake_personal_data[0].data.pyq_data, (item: personal_every_year_pyq_data, index) => {
+        ForEach(this.pyq_personal_Page_data.data.pyq_data, (item: personal_every_year_pyq_data, index) => {
 
-          ListItem() {
-            Text(item.year.toString() + '年')
-              .fontSize(23)
+          if (item.pyq_data_list.length !== 0) {
+            ListItem() {
+              Text(item.year.toString() + '年')
+                .fontSize(23)
+            }
+            .margin({ top: 25 })
+            .padding({ right: 10, left: 10 })
           }
-          .margin({ top: 25 })
-          .padding({ right: 10, left: 10 })
+
 
           ForEach(item.pyq_data_list, (item: pyq_data, index) => {
             ListItem() {
@@ -564,8 +583,8 @@ struct Pyq_all_Page {
                       router.pushUrl({
                         url: 'pages/dianzan_Page',
                         params: {
-                          avater: this.fake_personal_data[0].data.avatar,
-                          nickname: this.fake_personal_data[0].data.nickname,
+                          avater: this.pyq_personal_Page_data.data.avatar,
+                          nickname: this.pyq_personal_Page_data.data.nickname,
                           result: item
                         }
                       })
