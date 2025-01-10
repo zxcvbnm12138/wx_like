@@ -1,6 +1,6 @@
 import { LengthMetrics, router } from '@kit.ArkUI';
-import { Arraysc, image_show } from '../utils/tool';
-import { personal_data, pyq_data } from '../utils/dataModel';
+import { Arraysc, formatTime, image_show } from '../utils/tool';
+import { comment_obj, convertTime, personal_data, pyq_data } from '../utils/dataModel';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
 
@@ -149,71 +149,75 @@ struct Dianzan_Page {
 
             Row() {
               Column({ space: 1 }) {
-                Row({ space: 8 }) {
-                  Image($r('app.media.love'))
-                    .width(18)
-                    .fillColor('#586b95')
-                    .margin({ top: 5 })
-                  Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(6.5), cross: LengthMetrics.vp(6) } }) {
-                    ForEach(this.love_sum, () => {
-                      Image($r('app.media.test_avater'))
-                        .width(31)
-                        .height(31)
-                        .borderRadius(2)
-                    })
-                  }
-                  .layoutWeight(1)
-                }
-                .backgroundColor('#F7F7F7')
-                .width('100%')
-                .padding(5)
-                .borderRadius(5)
-                .alignItems(VerticalAlign.Top)
-
-                Row({ space: 8 }) {
-                  Image($r('app.media.bubble'))
-                    .width(18)
-                    .fillColor('#586b95')
-                    .margin({ top: 5 })
-                  Column({space:10}) {
-                    ForEach(Arraysc(this.fake_person_data!.comment_num), (item: string, index) => {
-                      Row({ space: 5 }) {
+                if(this.fake_person_data!.love_num !==0)
+                {
+                  Row({ space: 8 }) {
+                    Image($r('app.media.love'))
+                      .width(18)
+                      .fillColor('#586b95')
+                      .margin({ top: 5 })
+                    Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(6.5), cross: LengthMetrics.vp(6) } }) {
+                      ForEach(this.love_sum, () => {
                         Image($r('app.media.test_avater'))
-                          .width(27)
-                          .height(27)
+                          .width(31)
+                          .height(31)
                           .borderRadius(2)
-                        Column({ space: 5 }) {
-                          Row() {
-                            Text('陈爱银')
-                              .fontSize(11)
-                              .fontColor('#586b95')
-                            Text('2024年12月29日 13:09')
-                              .fontSize(11)
-                              .fontColor('#BEBEBE')
-                          }
-                          .width('100%')
-                          .justifyContent(FlexAlign.SpaceBetween)
-                          Row() {
-                            Text('哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟哟')
-                              .fontSize(14)
-                          }
-                          .width('100%')
-                        }
-                        .width('100%')
-                        .layoutWeight(1)
-                      }
-                      .alignItems(VerticalAlign.Top)
-                      .width('100%')
-                    })
+                      })
+                    }
+                    .layoutWeight(1)
                   }
-                  .alignItems(HorizontalAlign.Center)
-                  .layoutWeight(1)
+                  .backgroundColor('#F7F7F7')
+                  .width('100%')
+                  .padding(5)
+                  .borderRadius(5)
+                  .alignItems(VerticalAlign.Top)
                 }
-                .backgroundColor('#F7F7F7')
-                .width('100%')
-                .padding(5)
-                .borderRadius(5)
-                .alignItems(VerticalAlign.Top)
+                if (this.fake_person_data?.comment_num !== 0 ){
+                  Row({ space: 8 }) {
+                    Image($r('app.media.bubble'))
+                      .width(18)
+                      .fillColor('#586b95')
+                      .margin({ top: 5 })
+                    Column({space:10}) {
+                      ForEach(this.fake_person_data?.comment_content, (item: comment_obj, index) => {
+                        Row({ space: 5 }) {
+                          Image(image_show(item.comment_avatar))
+                            .width(27)
+                            .height(27)
+                            .borderRadius(2)
+                          Column({ space: 5 }) {
+                            Row() {
+                              Text(item.comment_nickname)
+                                .fontSize(11)
+                                .fontColor('#586b95')
+                              Text(formatTime(item.comment_time,0))
+                                .fontSize(11)
+                                .fontColor('#BEBEBE')
+                            }
+                            .width('100%')
+                            .justifyContent(FlexAlign.SpaceBetween)
+                            Row() {
+                              Text(item.comment_content)
+                                .fontSize(14)
+                            }
+                            .width('100%')
+                          }
+                          .width('100%')
+                          .layoutWeight(1)
+                        }
+                        .alignItems(VerticalAlign.Top)
+                        .width('100%')
+                      })
+                    }
+                    .alignItems(HorizontalAlign.Center)
+                    .layoutWeight(1)
+                  }
+                  .backgroundColor('#F7F7F7')
+                  .width('100%')
+                  .padding(5)
+                  .borderRadius(5)
+                  .alignItems(VerticalAlign.Top)
+                }
               }
               .margin({ top: 15 })
               .width('100%')
