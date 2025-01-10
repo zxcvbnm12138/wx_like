@@ -1,5 +1,5 @@
 import { LengthMetrics, router } from '@kit.ArkUI';
-import { personal_data, personal_every_year_pyq_data, pyq_data } from '../utils/dataModel';
+import { comment_obj, personal_data, personal_every_year_pyq_data, pyq_data } from '../utils/dataModel';
 import { Arraysc, image_show } from '../utils/tool';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
@@ -14,7 +14,7 @@ export interface pyq_all_Page_data {
   location: string;
   love_num: number;
   comment_num: number;
-  comment_content: string[];
+  comment_content: comment_obj[];
   show_time: string;
   share_time: number;
   link?: string;
@@ -254,7 +254,7 @@ struct Pyq_all_Page {
                             }
                           })
                         }
-                        .fontSize(13)
+                        .fontSize(14)
                         .width('100%')
                         .fontColor('#586b95')
                         .borderRadius(0)
@@ -264,14 +264,14 @@ struct Pyq_all_Page {
                   }
                   if (item.comment_num!== 0 ){
                     ListItem(){
-                      Column({space:0}){
-                        ForEach(Arraysc(item.comment_num),(item:number,index)=>{
+                      Column({space:5}){
+                        ForEach(item.comment_content,(comment_item:comment_obj,index)=>{
                           Text(){
-                            Span('陈爱银:')
+                            Span(comment_item.comment_nickname+': ')
                               .fontColor('#586b95')
-                            Span('你就好咯你就好咯你就好咯你就好咯你就好咯你就好咯你就好咯你就好咯你就好咯你就好咯')
+                            Span(comment_item.comment_content)
                           }
-                          .fontSize(13)
+                          .fontSize(14)
                           .lineHeight(18)
                           .width('100%')
                         })
