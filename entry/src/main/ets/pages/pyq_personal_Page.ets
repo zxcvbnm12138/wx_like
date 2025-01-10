@@ -13,6 +13,7 @@ import AreaPickerDialog from '../components/AreaPickerDialog/AreaPickerDialog';
 import { common } from '@kit.AbilityKit';
 import { Picture_analysis } from '../components/Picture_analysis';
 import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
+
 interface GeneratedTypeLiteralInterface_1 {
   protocol: string;
   hostname: string;
@@ -29,10 +30,10 @@ function parseUrl(url: string): GeneratedTypeLiteralInterface_1 {
   }
   throw new Error('Invalid URL');
 }
+
 @Entry
 @Component
 struct Pyq_all_Page {
-
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') fake_personal_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = []
@@ -54,18 +55,15 @@ struct Pyq_all_Page {
   new_share_time: number = 0
   @State selectedDate: string = '选择发布时间'
   @State selectedDistrict: string = '选择地区'
-  @State pickerValue: string[] = ['福建省', '厦门市'] //省市区选中值
+  @State pickerValue: string[] = [] //省市区选中值
   @State areaController: CustomDialogController | null = null //省市区选择组件控制器
   @State CustomDialogController: CustomDialogController | null = null;
-  private context = getContext(this) as common.UIAbilityContext;
-  private listScroller: Scroller = new Scroller();
-  @Provide pic_sum:number = 0
-  @Provide new_pic_list:string[] = []
-  @State parsedUrl: GeneratedTypeLiteralInterface_1|undefined = undefined;
-
+  @Provide pic_sum: number = 0
+  @Provide new_pic_list: string[] = []
+  @State parsedUrl: GeneratedTypeLiteralInterface_1 | undefined = undefined;
   @State image_url: string = ''
   @State url: string = ''
-
+  @State bg_url: string = this.fake_personal_data[0].data.bg as string
   dialogController: CustomDialogController = new CustomDialogController({
     builder: CustomContentDialog({
       contentBuilder: () => {
@@ -110,7 +108,9 @@ struct Pyq_all_Page {
               love_num: Number(this.new_love_sum),
               comment_num: this.new_comment_num,
               show_time: convertTime(this.new_share_time),
-              share_time: this.new_share_time
+              share_time: this.new_share_time,
+              link: this.url,
+              link_image_url: this.image_url,
             }
 
             let isIn: boolean = false
@@ -160,6 +160,7 @@ struct Pyq_all_Page {
               hilog.fatal(1, 'new_person_data:', '%{public}s', str);
               logIndex = logIndex + 1000
             }
+
             this.fake_personal_data[0] = this.new_person_data
             this.fake_personal_data = sortPyqData(this.fake_personal_data)
             this.pyq_all_Page_data = combineAndSortData(this.fake_personal_data)
@@ -176,11 +177,19 @@ struct Pyq_all_Page {
             this.new_comment_content = []
             this.new_share_time = 0
             this.new_pic_list = []
+            this.url = ''
+            this.image_url = ''
+            this.selectedDate = '选择发布时间'
+            this.selectedDistrict ='选择地区'
+            this.pickerValue = []
           }
         }
       ],
     }),
   });
+  private context = getContext(this) as common.UIAbilityContext;
+  private listScroller: Scroller = new Scroller();
+
   @Styles
   TexInput_commonstyles() {
     .width('100%')
@@ -198,7 +207,7 @@ struct Pyq_all_Page {
             .border({ width: 1 })
             .objectFit(ImageFit.Cover)
             .onClick(async () => {
-              let res = (await ImageUploadLocal(1,this.context.getApplicationContext()))
+              let res = (await ImageUploadLocal(1, this.context.getApplicationContext()))
               if (res.avater_url !== '') {
                 this.new_avater = res.avater_url as string
                 this.profileSrcPixmap = image_show(res.avater_url as string)
@@ -256,37 +265,42 @@ struct Pyq_all_Page {
           .width('100%')
           .borderWidth({ left: 1 })
           .tabBar('图片')
-          .onClick(async ()=>{
-            let res = (await ImageUploadLocal(9,this.context.getApplicationContext()))
-            hilog.fatal(1,'Picture_analysis',''+res.avater_url)
+          .onClick(async () => {
+            let res = (await ImageUploadLocal(9, this.context.getApplicationContext()))
+            hilog.fatal(1, 'Picture_analysis', '' + res.avater_url)
             this.pic_sum = res.avater_url.length
             this.new_pic_list = res.avater_url as string[]
             this.new_gallery = this.new_pic_list
           })
 
           TabContent() {
-            Row({space:5}) {
+            Row({ space: 5 }) {
               TextArea({ placeholder: '请输入链接', text: $$this.url })
                 .barState(BarState.Off)
                 .fontSize(14)
                 .layoutWeight(1)
                 .height('100%')
                 .onChange((value: string) => {
-                  this.parsedUrl = parseUrl(value);
+                  if (value !== '') {
+                    this.parsedUrl = parseUrl(value);
+                  }
                 })
-              Column({space:5}) {
+              Column({ space: 5 }) {
                 Image(this.image_url)
                   .width(70)
                   .layoutWeight(1)
                   .objectFit(ImageFit.Contain)
-                  .border({width:1})
+                  .border({ width: 1 })
                 Button('自动获取')
                   .controlSize(ControlSize.SMALL)
                   .type(ButtonType.Normal)
                   .borderRadius(5)
                   .onClick(() => {
-                    this.image_url = `${this.parsedUrl!.protocol}${this.parsedUrl!.hostname}/favicon.ico`;
-                    hilog.fatal(1,'http','image_url:' + this.image_url);
+                    if (this.parsedUrl !== undefined) {
+                      this.image_url = `${this.parsedUrl!.protocol}${this.parsedUrl!.hostname}/favicon.ico`;
+                      hilog.fatal(1, 'http', 'image_url:' + this.image_url);
+                    }
+
                   })
               }
               .height('100%')
@@ -302,6 +316,15 @@ struct Pyq_all_Page {
         .vertical(true)
         .scrollable(false)
         .height(100)
+        .onChange((index: number) => {
+          if (index == 0) {
+            this.url = ''
+          } else {
+            this.new_gallery = []
+            this.pic_sum = 0
+            this.new_pic_list = []
+          }
+        })
 
         TextInput({ placeholder: '定位（可不填）', text: $$this.new_location })
           .TexInput_commonstyles()
@@ -365,7 +388,6 @@ struct Pyq_all_Page {
     })
   }
 
-  @State bg_url:string = this.fake_personal_data[0].data.bg as string
   build() {
     Stack() {
       Row() {
@@ -395,15 +417,15 @@ struct Pyq_all_Page {
       List({ scroller: this.listScroller }) {
         ListItem() {
           Column() {
-            Image( image_show(this.bg_url))
+            Image(image_show(this.bg_url))
               .height('33.3%')
               .width('100%')
               .objectFit(ImageFit.Cover)
-              .onClick(async ()=>{
-                let res = (await ImageUploadLocal(1,this.context.getApplicationContext()))
+              .onClick(async () => {
+                let res = (await ImageUploadLocal(1, this.context.getApplicationContext()))
                 if (res.avater_url !== '') {
                   this.bg_url = res.avater_url as string
-                  this.fake_personal_data[0].data.bg =res.avater_url as string
+                  this.fake_personal_data[0].data.bg = res.avater_url as string
                 }
               })
             Row({ space: 9 }) {
@@ -482,53 +504,84 @@ struct Pyq_all_Page {
                 .fontWeight(FontWeight.Bold)
                 .padding({ top: 2 })
 
-                Row() {
-                  Pyq_Layout({
-                    picture_num: item.gallery.length,
-                    picture_list: item.gallery
-                  })
+                if (item.link && item.link !=='')
+                {
+                  Row() {
+                    Row(){
+                      Image(item.link_image_url)
+                        .width(30)
+                        .height(30)
+                        .objectFit(ImageFit.Cover)
+                        .border({width:0})
+                    }
+                    .justifyContent(FlexAlign.Center)
+                    .alignItems(VerticalAlign.Center)
+                    .width(40)
+                    .height(40)
+                    .border({width:0})
+                    Text(item.link)
+                      .fontSize(18)
+                      .maxLines(2)
+                      .textOverflow({ overflow: TextOverflow.Ellipsis })
+                      .layoutWeight(1)
+                      .textAlign(TextAlign.Start)
+                      .border({width:0})
+                  }
+                  .border({width:0})
+                  .padding(5)
+                  .layoutWeight(1)
+                  .alignItems(VerticalAlign.Center)
+                  .margin({ left: 10 })
+                  .backgroundColor('#F7F7F7')
+                }else {
+                  Row() {
+                    Pyq_Layout({
+                      picture_num: item.gallery.length,
+                      picture_list: item.gallery
+                    })
+                      .onClick(() => {
+                        router.pushUrl({
+                          url: 'pages/pyq_detail_Page',
+                          params: {
+                            result: item
+                          }
+                        })
+                      })
+                    Row() {
+                      Text(item.content)
+                        .backgroundColor(item.gallery.length == 0 ? '#F7F7F7' : '')
+                        .fontSize(18)
+                        .margin({ left: item.gallery.length == 0 ? 0 : 5 })
+                        .layoutWeight(1)
+                        .maxLines(3)
+                        .padding(item.gallery.length == 0 ? 8 : 0)
+                        .textAlign(TextAlign.Start)
+                        .textOverflow({ overflow: TextOverflow.Ellipsis })
+                    }
+                    .layoutWeight(1)
+                    .height(80)
                     .onClick(() => {
                       router.pushUrl({
-                        url: 'pages/pyq_detail_Page',
+                        url: 'pages/dianzan_Page',
                         params: {
+                          avater: this.fake_personal_data[0].data.avatar,
+                          nickname: this.fake_personal_data[0].data.nickname,
                           result: item
                         }
                       })
                     })
-                  Row(){
-                    Text(item.content)
-                      .backgroundColor(item.gallery.length == 0 ? '#F7F7F7' : '')
-                      .fontSize(18)
-                      .margin({ left: item.gallery.length == 0 ? 0 : 5 })
-                      .layoutWeight(1)
-                      .maxLines(3)
-                      .padding(item.gallery.length == 0 ? 8 : 0)
-                      .textAlign(TextAlign.Start)
-                      .textOverflow({ overflow: TextOverflow.Ellipsis })
                   }
                   .layoutWeight(1)
-                  .height(80)
-                  .onClick(() => {
-                    router.pushUrl({
-                      url: 'pages/dianzan_Page',
-                      params: {
-                        avater: this.fake_personal_data[0].data.avatar,
-                        nickname: this.fake_personal_data[0].data.nickname,
-                        result: item
-                      }
-                    })
-                  })
-
+                  .alignItems(VerticalAlign.Top)
+                  .margin({ left: 10 })
                 }
-                .layoutWeight(1)
-                .alignItems(VerticalAlign.Top)
-                .margin({ left: 10 })
               }
               .width('100%')
               .alignItems(VerticalAlign.Top)
             }
             .margin({ top: 25 })
             .padding({ right: 10, left: 10 })
+
           })
         })
       }

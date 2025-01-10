@@ -31,6 +31,8 @@ export interface pyq_data {
   comment_content?: string[]
   show_time: string;
   share_time: number;
+  link?: string;
+  link_image_url?:string;
 }
 
 export function convertTime(timestamp: number) {

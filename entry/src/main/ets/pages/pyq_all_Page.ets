@@ -17,6 +17,8 @@ export interface pyq_all_Page_data {
   comment_content: string[];
   show_time: string;
   share_time: number;
+  link?: string;
+  link_image_url?:string;
 }
 export function  combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
   let combinedData: pyq_all_Page_data[] = [];
@@ -37,7 +39,9 @@ export function  combineAndSortData(data: personal_data[]): pyq_all_Page_data[] 
           comment_num: pyqItem.comment_num,
           comment_content: pyqItem.comment_content,
           show_time: pyqItem.show_time,
-          share_time: pyqItem.share_time
+          share_time: pyqItem.share_time,
+          link : pyqItem?.link,
+          link_image_url: pyqItem?.link_image_url,
         } as pyq_all_Page_data);
       });
     });
@@ -52,14 +56,10 @@ export function  combineAndSortData(data: personal_data[]): pyq_all_Page_data[] 
 @Component
 struct Pyq_all_Page {
   @State listlocation :boolean = false
-  @State textover:string = '全文'
   @State maxLinesindex:number = 999
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageProp('fake_person_data') fake_person_data: personal_data[]=[]
   @StorageProp('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
-  // initlines:number = 0
-  // isover:boolean = false
-  // isVisibility:boolean = false
   controller: TextController = new TextController()
   private listScroller: Scroller = new Scroller();
 
@@ -146,45 +146,47 @@ struct Pyq_all_Page {
                         .border({width:0})
                         .width('100%')
                         .fontSize(17)
-                        // .onAppear(()=>{
-                        //   let layoutManager: LayoutManager = this.controller.getLayoutManager();
-                        //   this.initlines = layoutManager.getLineCount()
-                        //   hilog.fatal(0x0064,'','initlines:'+this.initlines)
-                        //   this.isVisibility = this.isover = this.initlines<=5
-                        //   if (this.isover){
-                        //     this.maxLinesindex=this.initlines
-                        //   }else {
-                        //     this.maxLinesindex=5
-                        //     this.textover = '全文'
-                        //   }
-                        // })
-                      // Text(this.textover)
-                      //   .fontColor('#586b95')
-                      //   .visibility(this.isVisibility ? Visibility.None : Visibility.Visible)
-                      //   .onClick(()=>{
-                      //     if (this.isover){
-                      //       this.maxLinesindex = 5
-                      //       this.textover = '全文'
-                      //       this.isover = !this.isover
-                      //     }else {
-                      //       this.maxLinesindex = this.initlines
-                      //       this.textover = '收起'
-                      //       this.isover = !this.isover
-                      //     }
-                      //   })
-                      Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }){
-                        ForEach(item.gallery,(pic:string,index)=>{
-                          GridItem(){
+                      if (item.link && item.link !=='') {
+                        Row() {
+                          Row(){
+                            Image(item.link_image_url)
+                              .width(30)
+                              .height(30)
+                              .objectFit(ImageFit.Cover)
+                              .border({width:0})
+                          }
+                          .justifyContent(FlexAlign.Center)
+                          .alignItems(VerticalAlign.Center)
+                          .width(40)
+                          .height(40)
+                          .border({width:0})
+                          Text(item.link)
+                            .fontSize(18)
+                            .maxLines(2)
+                            .textOverflow({ overflow: TextOverflow.Ellipsis })
+                            .layoutWeight(1)
+                            .textAlign(TextAlign.Start)
+                            .border({width:0})
+                        }
+                        .border({width:0})
+                        .padding(5)
+                        // .height(40)
+                        .alignItems(VerticalAlign.Center)
+                        .margin({ left: 10 })
+                        .backgroundColor('#F7F7F7')
+                      }
+                      else {
+                        Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }){
+                          ForEach(item.gallery,(pic:string,index)=>{
                             Image(image_show(pic))
                               .objectFit(ImageFit.Cover)
                               .width(93)
                               .height(93)
-                          }.backgroundColor('')
-                        })
+                          })
+                        }
+                        .width('100%')
+                        .margin({top:10})
                       }
-                      .width('100%')
-                      .margin({top:10})
-
                       Text(item.location).border({width:0}).fontColor('#586b95').fontSize(14)
                         .margin({top:5})
                       Row(){
