@@ -13,7 +13,22 @@ import AreaPickerDialog from '../components/AreaPickerDialog/AreaPickerDialog';
 import { common } from '@kit.AbilityKit';
 import { Picture_analysis } from '../components/Picture_analysis';
 import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
+interface GeneratedTypeLiteralInterface_1 {
+  protocol: string;
+  hostname: string;
+}
 
+function parseUrl(url: string): GeneratedTypeLiteralInterface_1 {
+  const regex = /^(https?:\/\/)?([^\/]+)/;
+  const match = url.match(regex);
+  if (match) {
+    return {
+      protocol: match[1] || 'http://',
+      hostname: match[2]
+    };
+  }
+  throw new Error('Invalid URL');
+}
 @Entry
 @Component
 struct Pyq_all_Page {
@@ -46,6 +61,10 @@ struct Pyq_all_Page {
   private listScroller: Scroller = new Scroller();
   @Provide pic_sum:number = 0
   @Provide new_pic_list:string[] = []
+  @State parsedUrl: GeneratedTypeLiteralInterface_1|undefined = undefined;
+
+  @State image_url: string = ''
+  @State url: string = ''
 
   dialogController: CustomDialogController = new CustomDialogController({
     builder: CustomContentDialog({
@@ -246,7 +265,34 @@ struct Pyq_all_Page {
           })
 
           TabContent() {
-            Text('解析链接')
+            Row({space:5}) {
+              TextArea({ placeholder: '请输入链接', text: $$this.url })
+                .barState(BarState.Off)
+                .fontSize(14)
+                .layoutWeight(1)
+                .height('100%')
+                .onChange((value: string) => {
+                  this.parsedUrl = parseUrl(value);
+                })
+              Column({space:5}) {
+                Image(this.image_url)
+                  .width(70)
+                  .layoutWeight(1)
+                  .objectFit(ImageFit.Contain)
+                  .border({width:1})
+                Button('自动获取')
+                  .controlSize(ControlSize.SMALL)
+                  .type(ButtonType.Normal)
+                  .borderRadius(5)
+                  .onClick(() => {
+                    this.image_url = `${this.parsedUrl!.protocol}${this.parsedUrl!.hostname}/favicon.ico`;
+                    hilog.fatal(1,'http','image_url:' + this.image_url);
+                  })
+              }
+              .height('100%')
+            }
+            .padding(10)
+            .height('100%')
           }
           .borderWidth({ left: 1 })
           .tabBar('链接')
@@ -279,6 +325,7 @@ struct Pyq_all_Page {
             .placeholderFont({ size: 14 })
             .TexInput_commonstyles()
             .layoutWeight(1)
+            .type(InputType.Number)
           TextInput({ placeholder: '分享来源（可不填）' })
             .TexInput_commonstyles()
             .layoutWeight(2)
