@@ -2,6 +2,7 @@ import { CustomContentDialog, router } from '@kit.ArkUI';
 import { formatTime, image_show, ImageUploadLocal, sortPyqData, sortPyqDataList, logoutput } from '../utils/tool';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import {
+  comment_obj,
   convertTime,
   personal_data,
   personal_detail_data,
@@ -35,10 +36,13 @@ function parseUrl(url: string): GeneratedTypeLiteralInterface_1 {
 @Entry
 @Component
 struct Pyq_all_Page {
+
+  @State new_comment_list:comment_obj[]=[]
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') fake_personal_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = []
   @State profileSrcPixmap: PixelMap = image_show(this.fake_personal_data[0].data.avatar)
+  @State commentSrcPixmap: PixelMap = image_show(this.fake_personal_data[0].data.avatar)
   @State listlocation: boolean = false
   old_wx_number: string = ''
   @State new_person_data: personal_data | undefined = undefined
@@ -52,10 +56,17 @@ struct Pyq_all_Page {
   new_location: string = ''
   new_love_sum: number = 0
   new_comment_num: number = 0
-  new_comment_content: string[] = []
-  new_share_time: number = 0
+  new_comment_content: comment_obj[] = []
+  new_share_time: number = new Date().getTime()
   new_share_source:string = ''
+
+  new_comment_avatar:string = this.fake_personal_data[0].data.avatar
+  new_comment_nickname:string = ''
+  new_comment_contents: string = ''
+  new_comment_share_time: number = new Date().getTime();
+
   @State selectedDate: string = '选择发布时间'
+  @State comment_selectedDate: string = '选择发布时间'
   @State selectedDistrict: string = '选择地区'
   @State pickerValue: string[] = [] //省市区选中值
   @State areaController: CustomDialogController | null = null //省市区选择组件控制器
@@ -119,6 +130,7 @@ struct Pyq_all_Page {
               location: this.new_location,
               love_num: Number(this.new_love_sum),
               comment_num: this.new_comment_num,
+              comment_content: this.new_comment_content,
               show_time: convertTime(this.new_share_time),
               share_time: this.new_share_time,
               link: this.url,
@@ -197,7 +209,7 @@ struct Pyq_all_Page {
             this.new_love_sum = 0
             this.new_comment_num = 0
             this.new_comment_content = []
-            this.new_share_time = 0
+            this.new_share_time = new Date().getTime()
             this.new_pic_list = []
             this.url = ''
             this.image_url = ''
@@ -228,6 +240,17 @@ struct Pyq_all_Page {
           fontColor: '#000000',
           buttonStyle: ButtonStyleMode.EMPHASIZED,
           background: '#00E050',
+          action: () => {
+            if (this.new_comment_list.length !== 0) {
+              this.new_comment_num = this.new_comment_list.length
+              this.new_comment_content = this.new_comment_list
+            }
+            this.new_comment_avatar= this.fake_personal_data[0].data.avatar
+            this.new_comment_nickname= ''
+            this.new_comment_contents= ''
+            this.new_comment_share_time= new Date().getTime();
+            this.new_comment_list = []
+          }
         }
       ],
     }),
@@ -412,17 +435,24 @@ struct Pyq_all_Page {
     Column({space:5}){
       Column({space:5}){
         Row({space:5}){
-            Image($r('app.media.test_avater'))
+            Image(this.commentSrcPixmap)
               .width(50)
               .height(50)
               .objectFit(ImageFit.Cover)
               .border({width:1})
+              .onClick(async () => {
+                let res = (await ImageUploadLocal(1, this.context.getApplicationContext()))
+                if (res.avater_url !== '') {
+                  this.new_comment_avatar = res.avater_url as string
+                  this.commentSrcPixmap = image_show(res.avater_url as string)
+                }
+              })
             Column({space:5}){
-              TextInput({ placeholder: '昵称'})
+              TextInput({ placeholder: '昵称', text: $$this.new_comment_nickname})
                 .TexInput_commonstyles()
-              TextArea({ placeholder: '内容'})
+              TextArea({ placeholder: '内容', text: $$this.new_comment_contents})
                 .TexInput_commonstyles()
-              Button(this.selectedDate)
+              Button(this.comment_selectedDate)
                 .buttonStyle(ButtonStyleMode.NORMAL)
                 .type(ButtonType.Normal)
                 .TexInput_commonstyles()
@@ -432,9 +462,8 @@ struct Pyq_all_Page {
                     showTime: true,
                     useMilitaryTime: true,
                     onDateAccept: (value: Date) => {
-                      this.selectedDate = formatTime(value.getTime(), 0)
-                      // this.new_share_time = value.getTime()
-
+                      this.comment_selectedDate = formatTime(value.getTime(), 0)
+                      this.new_comment_share_time = value.getTime()
                     }
                   })
                 })
@@ -452,88 +481,77 @@ struct Pyq_all_Page {
             .buttonStyle(ButtonStyleMode.NORMAL)
             .borderRadius(5)
             .layoutWeight(1)
+            .onClick(()=>{
+              let new_comment :comment_obj = {
+                comment_avatar: this.new_comment_avatar,
+                comment_nickname: this.new_comment_nickname,
+                comment_content: this.new_comment_contents,
+                comment_time: this.new_comment_share_time
+              }
+              this.new_comment_list.push(new_comment)
+              hilog.fatal(1, 'http', 'new_comment_list:' + JSON.stringify(this.new_comment_list));
+            })
         }.width('100%')
 
       }
       .width('100%')
       Column(){
-        Row(){
-          Text('共1条评论')
-            .fontSize(15)
-          Text('一键清空')
-            .fontSize(15)
-        }
-        .width('100%')
-        .justifyContent(FlexAlign.SpaceAround)
-        List({space:5}) {
-          ListItem(){
-            Row({ space: 5 }) {
-              Image($r('app.media.test_avater'))
-                .width(27)
-                .height(27)
-                .borderRadius(2)
-              Column({ space: 5 }) {
-                Row() {
-                  Text('菠萝吹雪')
-                    .fontSize(11)
-                    .fontColor('#586b95')
-                  Text('2025年1月11号 00:55')
-                    .fontSize(11)
-                    .fontColor('#BEBEBE')
+        if (this.new_comment_list.length!==0){
+          Row(){
+            Text(`共${this.new_comment_list.length}条评论`)
+              .fontSize(15)
+            Text('一键清空')
+              .fontSize(15)
+              .onClick(()=>{
+                this.new_comment_list = []
+              })
+          }
+          .width('100%')
+          .justifyContent(FlexAlign.SpaceAround)
+          List({space:5}) {
+            ForEach(this.new_comment_list,(item:comment_obj,index)=>{
+              ListItem(){
+                Row({ space: 5 }) {
+                  Image(image_show(item.comment_avatar))
+                    .width(27)
+                    .height(27)
+                    .borderRadius(2)
+                  Column({ space: 5 }) {
+                    Row() {
+                      Text(item.comment_nickname)
+                        .fontSize(11)
+                        .fontColor('#586b95')
+                      Text(formatTime(item.comment_time,0))
+                        .fontSize(11)
+                        .fontColor('#BEBEBE')
+                    }
+                    .width('100%')
+                    .justifyContent(FlexAlign.SpaceBetween)
+                    Row() {
+                      Text(item.comment_content)
+                        .fontSize(14)
+                    }
+                    .width('100%')
+                  }
+                  .width('100%')
+                  .layoutWeight(1)
                 }
-                .width('100%')
-                .justifyContent(FlexAlign.SpaceBetween)
-                Row() {
-                  Text('点赞啦，我也去转发咯！')
-                    .fontSize(14)
-                }
+                .alignItems(VerticalAlign.Top)
                 .width('100%')
               }
-              .width('100%')
-              .layoutWeight(1)
-            }
-            .alignItems(VerticalAlign.Top)
-            .width('100%')
+              .borderRadius(5)
+              .padding(5)
+              .border({width:1})
+            })
           }
-          .borderRadius(5)
+          .width('100%')
+          .scrollBar(BarState.Off)
           .padding(5)
-          .border({width:1})
-          ListItem(){
-            Row({ space: 5 }) {
-              Image($r('app.media.test_avater'))
-                .width(27)
-                .height(27)
-                .borderRadius(2)
-              Column({ space: 5 }) {
-                Row() {
-                  Text('菠萝吹雪')
-                    .fontSize(11)
-                    .fontColor('#586b95')
-                  Text('2025年1月11号 00:55')
-                    .fontSize(11)
-                    .fontColor('#BEBEBE')
-                }
-                .width('100%')
-                .justifyContent(FlexAlign.SpaceBetween)
-                Row() {
-                  Text('点赞啦，我也去转发咯！')
-                    .fontSize(14)
-                }
-                .width('100%')
-              }
-              .width('100%')
-              .layoutWeight(1)
-            }
-            .alignItems(VerticalAlign.Top)
-            .width('100%')
-          }
-          .borderRadius(5)
-          .padding(5)
-          .border({width:1})
+        }else {
+          Text('还没添加评论哦~')
+            .fontSize(17)
         }
-        .width('100%')
-        .scrollBar(BarState.Off)
-        .padding(5)
+
       }.backgroundColor('#ECECEC')
       .width('100%')
       .borderRadius(5)
