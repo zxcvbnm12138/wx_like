@@ -744,6 +744,7 @@ struct Pyq_all_Page {
                     })
                       .onClick(() => {
                         router.pushUrl({
+
                           url: 'pages/pyq_detail_Page',
                           params: {
                             result: item
