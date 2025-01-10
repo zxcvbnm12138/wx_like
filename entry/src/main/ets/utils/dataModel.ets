@@ -1,7 +1,4 @@
-import { hilog } from "@kit.PerformanceAnalysisKit";
-import fs from '@ohos.file.fs';
-import { buffer } from "@kit.ArkTS";
-import { upload_local } from "./tool";
+import { upload_local } from './tool';
 
 export interface personal_data {
   wx_number: string;
@@ -32,7 +29,7 @@ export interface pyq_data {
   show_time: string;
   share_time: number;
   link?: string;
-  link_image_url?:string;
+  link_image_url?: string;
 }
 
 export function convertTime(timestamp: number) {
@@ -63,10 +60,10 @@ export function fake_data(context: Context | undefined) {
   let pyq_first4_pic_list: string[] = []
   let personal_every_year_pyq_data_list: personal_every_year_pyq_data[] = []
   let avater_url: string = 'test_avater.jpg'
-  let bg:string = 'pyq_bg.jpg'
+  let bg: string = 'pyq_bg.jpg'
 
-  const person_avater=upload_local(avater_url,context)
-  const person_pyq_bg = upload_local(bg,context)
+  const person_avater = upload_local(avater_url, context)
+  const person_pyq_bg = upload_local(bg, context)
 
 
   let pyq_data2024: pyq_data[] = [
@@ -150,7 +147,7 @@ export function fake_data(context: Context | undefined) {
     }
   ]
 
-  let pyq_data_list: pyq_data[][] = [pyq_data2023,pyq_data2024,pyq_data2022]
+  let pyq_data_list: pyq_data[][] = [pyq_data2023, pyq_data2024, pyq_data2022]
 
 
   for (let m: number = 0; m < pyq_data_list.length; m++) {
@@ -187,30 +184,30 @@ export function fake_data(context: Context | undefined) {
     data: personal_detail_data
   }
 
-  let personal_data_list :personal_data[] = []
+  let personal_data_list: personal_data[] = []
   personal_data_list.push(personal_data)
 
   return personal_data_list
 }
 
 
-export function fake_all_data(context: Context | undefined){
+export function fake_all_data(context: Context | undefined) {
   let avater_url: string = 'hejtea14rimy.jpg'
-  let pyq_first4_pic_list:string[] = ['hejtea14rimy_pyq1.jpg','hejtea14rimy_pyq2.jpg',
-    'hejtea14rimy_pyq3.jpg','hejtea14rimy_pyq4.jpg']
-  let new_pyq_first4_pic_list:string[] =[]
+  let pyq_first4_pic_list: string[] = ['hejtea14rimy_pyq1.jpg', 'hejtea14rimy_pyq2.jpg',
+    'hejtea14rimy_pyq3.jpg', 'hejtea14rimy_pyq4.jpg']
+  let new_pyq_first4_pic_list: string[] = []
 
 
-  const person_avater=upload_local(avater_url,context)
+  const person_avater = upload_local(avater_url, context)
 
   for (let index = 0; index < pyq_first4_pic_list.length; index++) {
-    const element = upload_local(pyq_first4_pic_list[index],context);
+    const element = upload_local(pyq_first4_pic_list[index], context);
     new_pyq_first4_pic_list.push(element)
   }
-  let gallery_list:string[] =[new_pyq_first4_pic_list[0],new_pyq_first4_pic_list[1]]
+  let gallery_list: string[] = [new_pyq_first4_pic_list[0], new_pyq_first4_pic_list[1]]
 
 
-  let friends_data:personal_data={
+  let friends_data: personal_data = {
     wx_number: 'hejtea14rimy',
     data: {
       avatar: person_avater,
@@ -240,6 +237,7 @@ export function fake_all_data(context: Context | undefined){
 struct dddd {
   aboutToAppear(): void {
   }
+
   build() {
 
   }

@@ -1,4 +1,4 @@
-import { ImageUploadLocal, image_show } from '../utils/tool'
+import { image_show } from '../utils/tool';
 import { common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { unifiedDataChannel, uniformTypeDescriptor } from '@kit.ArkData';

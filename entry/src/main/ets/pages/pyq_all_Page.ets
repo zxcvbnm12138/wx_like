@@ -4,7 +4,7 @@ import { image_show } from '../utils/tool';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export interface pyq_all_Page_data {
-  wx_number:string;
+  wx_number: string;
   avatar: string;
   nickname: string;
   district: string;
@@ -18,9 +18,10 @@ export interface pyq_all_Page_data {
   show_time: string;
   share_time: number;
   link?: string;
-  link_image_url?:string;
+  link_image_url?: string;
 }
-export function  combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
+
+export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
   let combinedData: pyq_all_Page_data[] = [];
 
   data.forEach(person => {
@@ -40,7 +41,7 @@ export function  combineAndSortData(data: personal_data[]): pyq_all_Page_data[] 
           comment_content: pyqItem.comment_content,
           show_time: pyqItem.show_time,
           share_time: pyqItem.share_time,
-          link : pyqItem?.link,
+          link: pyqItem?.link,
           link_image_url: pyqItem?.link_image_url,
         } as pyq_all_Page_data);
       });
@@ -55,59 +56,58 @@ export function  combineAndSortData(data: personal_data[]): pyq_all_Page_data[] 
 @Entry
 @Component
 struct Pyq_all_Page {
-  @State listlocation :boolean = false
-  @State maxLinesindex:number = 999
+  @State listlocation: boolean = false
+  @State maxLinesindex: number = 999
   @StorageProp('topRectHeight') topRectHeight: number = 0;
-  @StorageProp('fake_person_data') fake_person_data: personal_data[]=[]
+  @StorageProp('fake_person_data') fake_person_data: personal_data[] = []
   @StorageProp('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
   controller: TextController = new TextController()
   private listScroller: Scroller = new Scroller();
-
 
   aboutToAppear(): void {
 
   }
 
   build() {
-    Stack(){
-      Row(){
+    Stack() {
+      Row() {
         Image($r('app.media.back'))
           .width(20)
-          .fillColor(this.listlocation ? '#000000':'#ffffff')
-          .onClick(()=>{
+          .fillColor(this.listlocation ? '#000000' : '#ffffff')
+          .onClick(() => {
             router.back()
           })
         Text('朋友圈')
           .fontSize(18)
           .lineHeight(25)
           .opacity(this.listlocation ? 1 : 0)
-        Image($r(this.listlocation ? 'app.media.camera':'app.media.camera_withe'))
+        Image($r(this.listlocation ? 'app.media.camera' : 'app.media.camera_withe'))
           .width(23)
       }
       .justifyContent(FlexAlign.SpaceBetween)
       .width('100%')
       .zIndex(2)
       .backgroundColor(this.listlocation ? '#EDEDED' : Color.Transparent)
-      .height(px2vp(this.topRectHeight)+54)
-      .padding({top:px2vp(this.topRectHeight),left:10,right:10})
-      .border({width:0})
+      .height(px2vp(this.topRectHeight) + 54)
+      .padding({ top: px2vp(this.topRectHeight), left: 10, right: 10 })
+      .border({ width: 0 })
       .animation({
-        duration:200
+        duration: 200
       })
 
 
-      List({ scroller: this.listScroller }){
-        ListItem(){
-          Column(){
+      List({ scroller: this.listScroller }) {
+        ListItem() {
+          Column() {
             Image(image_show(this.fake_person_data[0].data.bg as string))
               .height('33.3%')
               .width('100%')
-            Row({space:9}){
+            Row({ space: 9 }) {
               Text(this.fake_person_data[0].data.nickname)
                 .fontSize(20)
                 .fontColor('#ffffff')
                 .fontWeight(FontWeight.Bold)
-                .margin({top:8})
+                .margin({ top: 8 })
                 .layoutWeight(1)
                 .textAlign(TextAlign.End)
               Image(image_show(this.fake_person_data[0].data.avatar))
@@ -119,127 +119,131 @@ struct Pyq_all_Page {
             .height(70)
             .alignItems(VerticalAlign.Top)
             .position({ x: '55.00%', y: '28.00%' })
-            .onClick(()=>{
-              router.pushUrl({url:'pages/detail_Page'})
+            .onClick(() => {
+              router.pushUrl({ url: 'pages/detail_Page' })
             })
           }
         }
         .width('100%')
-      ForEach(this.pyq_all_Page_data,(item:pyq_all_Page_data,index)=>{
-                ListItem(){
-                  Row({space:5}){
-                    Column(){
-                      Image(image_show(item.avatar))
-                        .width(50)
-                        .height(50)
+
+        ForEach(this.pyq_all_Page_data, (item: pyq_all_Page_data, index) => {
+          ListItem() {
+            Row({ space: 5 }) {
+              Column() {
+                Image(image_show(item.avatar))
+                  .width(50)
+                  .height(50)
+                  .objectFit(ImageFit.Cover)
+                  .borderRadius(8)
+              }
+
+              Column() {
+                Text(item.nickname)
+                  .border({ width: 0 })
+                  .fontColor('#586b95')
+                  .fontSize(18)
+                Text(item.content, { controller: this.controller })
+                  .maxLines(this.maxLinesindex)
+                  .textOverflow({ overflow: TextOverflow.Clip })
+                  .border({ width: 0 })
+                  .width('100%')
+                  .fontSize(17)
+                if (item.link && item.link !== '') {
+                  Row() {
+                    Row() {
+                      Image(item.link_image_url)
+                        .width(30)
+                        .height(30)
                         .objectFit(ImageFit.Cover)
-                        .borderRadius(8)
+                        .border({ width: 0 })
                     }
-                    Column(){
-                      Text(item.nickname)
-                        .border({width:0})
-                        .fontColor('#586b95')
-                        .fontSize(18)
-                      Text(item.content,{ controller: this.controller })
-                        .maxLines(this.maxLinesindex)
-                        .textOverflow({overflow:TextOverflow.Clip})
-                        .border({width:0})
-                        .width('100%')
-                        .fontSize(17)
-                      if (item.link && item.link !=='') {
-                        Row() {
-                          Row(){
-                            Image(item.link_image_url)
-                              .width(30)
-                              .height(30)
-                              .objectFit(ImageFit.Cover)
-                              .border({width:0})
-                          }
-                          .justifyContent(FlexAlign.Center)
-                          .alignItems(VerticalAlign.Center)
-                          .width(40)
-                          .height(40)
-                          .border({width:0})
-                          Text(item.link)
-                            .fontSize(18)
-                            .maxLines(2)
-                            .textOverflow({ overflow: TextOverflow.Ellipsis })
-                            .layoutWeight(1)
-                            .textAlign(TextAlign.Start)
-                            .border({width:0})
-                        }
-                        .border({width:0})
-                        .padding(5)
-                        // .height(40)
-                        .alignItems(VerticalAlign.Center)
-                        .margin({ left: 10 })
-                        .backgroundColor('#F7F7F7')
-                      }
-                      else {
-                        Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }){
-                          ForEach(item.gallery,(pic:string,index)=>{
-                            Image(image_show(pic))
-                              .objectFit(ImageFit.Cover)
-                              .width(93)
-                              .height(93)
-                          })
-                        }
-                        .width('100%')
-                        .margin({top:10})
-                      }
-                      Text(item.location).border({width:0}).fontColor('#586b95').fontSize(14)
-                        .margin({top:5})
-                      Row(){
-                        Text(item.show_time).fontColor('#BEBEBE').fontSize(12)
-                        Image($r('app.media.ICO28_more')).width(30)
-                          .height(23)
-                          .backgroundColor('#F7F7F7').borderRadius(5)
-                      }.border({width:0})
-                      .width('100%')
-                      .justifyContent(FlexAlign.SpaceBetween)
-                      Row({space:10}){
-                        Image($r('app.media.love')).width(20).fillColor('#586b95')
-                        Text('陈爱银, 陈爱银').fontColor('#586b95').fontSize(16)
-                          .lineHeight(25)
-                      }.border({width:0})
-                      .backgroundColor('#F7F7F7')
-                      .width('100%')
-                      .margin({top:5})
-                      .padding({left:5})
-                      .borderRadius(5)
-                      .height(30)
-                      .alignItems(VerticalAlign.Center)
-                    }
-                    .padding({top:2})
-                    .layoutWeight(1)
-                    .width('100%')
-                    .alignItems(HorizontalAlign.Start)
+                    .justifyContent(FlexAlign.Center)
+                    .alignItems(VerticalAlign.Center)
+                    .width(40)
+                    .height(40)
+                    .border({ width: 0 })
+
+                    Text(item.link)
+                      .fontSize(18)
+                      .maxLines(2)
+                      .textOverflow({ overflow: TextOverflow.Ellipsis })
+                      .layoutWeight(1)
+                      .textAlign(TextAlign.Start)
+                      .border({ width: 0 })
+                  }
+                  .border({ width: 0 })
+                  .padding(5)
+                  // .height(40)
+                  .alignItems(VerticalAlign.Center)
+                  .margin({ left: 10 })
+                  .backgroundColor('#F7F7F7')
+                } else {
+                  Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
+                    ForEach(item.gallery, (pic: string, index) => {
+                      Image(image_show(pic))
+                        .objectFit(ImageFit.Cover)
+                        .width(93)
+                        .height(93)
+                    })
                   }
                   .width('100%')
-                  .alignItems(VerticalAlign.Top)
+                  .margin({ top: 10 })
                 }
-                .margin({top:32})
-                .padding({right:10,left:10,bottom:10})
-            })
+                Text(item.location).border({ width: 0 }).fontColor('#586b95').fontSize(14)
+                  .margin({ top: 5 })
+                Row() {
+                  Text(item.show_time).fontColor('#BEBEBE').fontSize(12)
+                  Image($r('app.media.ICO28_more')).width(30)
+                    .height(23)
+                    .backgroundColor('#F7F7F7').borderRadius(5)
+                }.border({ width: 0 })
+                .width('100%')
+                .justifyContent(FlexAlign.SpaceBetween)
+
+                Row({ space: 10 }) {
+                  Image($r('app.media.love')).width(20).fillColor('#586b95')
+                  Text('陈爱银, 陈爱银').fontColor('#586b95').fontSize(16)
+                    .lineHeight(25)
+                }
+                .border({ width: 0 })
+                .backgroundColor('#F7F7F7')
+                .width('100%')
+                .margin({ top: 5 })
+                .padding({ left: 5 })
+                .borderRadius(5)
+                .height(30)
+                .alignItems(VerticalAlign.Center)
+              }
+              .padding({ top: 2 })
+              .layoutWeight(1)
+              .width('100%')
+              .alignItems(HorizontalAlign.Start)
+            }
+            .width('100%')
+            .alignItems(VerticalAlign.Top)
+          }
+          .margin({ top: 32 })
+          .padding({ right: 10, left: 10, bottom: 10 })
+        })
 
       }
       .divider({
-        strokeWidth:0.5,
-        color:'#D7D7D7'
+        strokeWidth: 0.5,
+        color: '#D7D7D7'
       })
       .width('100%')
       .height('100%')
-      .border({width:0})
+      .border({ width: 0 })
       .backgroundColor('#ffffff')
       .scrollBar(BarState.Off)
-      .onDidScroll(()=>{
+      .onDidScroll(() => {
         let location = this.listScroller.currentOffset().yOffset
         this.listlocation = location >= 168
       })
     }
     .alignContent(Alignment.Top)
     .backgroundColor('#EDEDED')
-    .border({width:1})
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP,SafeAreaEdge.BOTTOM])
+    .border({ width: 1 })
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
   }
 }

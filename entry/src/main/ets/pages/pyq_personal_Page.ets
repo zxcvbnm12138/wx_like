@@ -180,7 +180,7 @@ struct Pyq_all_Page {
             this.url = ''
             this.image_url = ''
             this.selectedDate = '选择发布时间'
-            this.selectedDistrict ='选择地区'
+            this.selectedDistrict = '选择地区'
             this.pickerValue = []
           }
         }
@@ -504,36 +504,36 @@ struct Pyq_all_Page {
                 .fontWeight(FontWeight.Bold)
                 .padding({ top: 2 })
 
-                if (item.link && item.link !=='')
-                {
+                if (item.link && item.link !== '') {
                   Row() {
-                    Row(){
+                    Row() {
                       Image(item.link_image_url)
                         .width(30)
                         .height(30)
                         .objectFit(ImageFit.Cover)
-                        .border({width:0})
+                        .border({ width: 0 })
                     }
                     .justifyContent(FlexAlign.Center)
                     .alignItems(VerticalAlign.Center)
                     .width(40)
                     .height(40)
-                    .border({width:0})
+                    .border({ width: 0 })
+
                     Text(item.link)
                       .fontSize(18)
                       .maxLines(2)
                       .textOverflow({ overflow: TextOverflow.Ellipsis })
                       .layoutWeight(1)
                       .textAlign(TextAlign.Start)
-                      .border({width:0})
+                      .border({ width: 0 })
                   }
-                  .border({width:0})
+                  .border({ width: 0 })
                   .padding(5)
                   .layoutWeight(1)
                   .alignItems(VerticalAlign.Center)
                   .margin({ left: 10 })
                   .backgroundColor('#F7F7F7')
-                }else {
+                } else {
                   Row() {
                     Pyq_Layout({
                       picture_num: item.gallery.length,
