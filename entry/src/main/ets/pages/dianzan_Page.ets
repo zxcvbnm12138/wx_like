@@ -103,6 +103,10 @@ struct Dianzan_Page {
                     Text(this.fake_person_data?.show_time)
                       .fontColor('#BEBEBE')
                       .fontSize(12)
+                    if(this.fake_person_data?.share_source && this.fake_person_data.share_source !== '')
+                    {
+                      Text(this.fake_person_data.share_source).fontColor('#BEBEBE').fontSize(12)
+                    }
                     Image($r('app.media.del'))
                       .width(16)
                       .height(16)

@@ -19,6 +19,7 @@ export interface pyq_all_Page_data {
   share_time: number;
   link?: string;
   link_image_url?: string;
+  share_source?:string
 }
 
 export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
@@ -43,6 +44,7 @@ export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
           share_time: pyqItem.share_time,
           link: pyqItem?.link,
           link_image_url: pyqItem?.link_image_url,
+          share_source: pyqItem?.share_source
         } as pyq_all_Page_data);
       });
     });
@@ -206,6 +208,10 @@ struct Pyq_all_Page {
                 Row() {
                   Row({space:5}){
                     Text(item.show_time).fontColor('#BEBEBE').fontSize(12)
+                    if(item.share_source && item.share_source !== '')
+                    {
+                      Text(item.share_source).fontColor('#BEBEBE').fontSize(12)
+                    }
                     if (item.wx_number == this.fake_person_data[0].wx_number)
                     {
                       Image($r('app.media.del'))

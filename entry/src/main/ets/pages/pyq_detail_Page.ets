@@ -56,7 +56,7 @@ struct Pyq_detail_Page {
         Swiper() {
           ForEach(this.fake_pyq_detail_data?.gallery,(item:string,index)=>{
             Image(image_show(item))
-              .objectFit(ImageFit.Auto)
+              .objectFit(ImageFit.Contain)
           })
         }
         .width('100%')

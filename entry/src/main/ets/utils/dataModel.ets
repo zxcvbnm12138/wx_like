@@ -37,6 +37,7 @@ export interface pyq_data {
   share_time: number;
   link?: string;
   link_image_url?: string;
+  share_source?:string
 }
 
 
@@ -115,6 +116,7 @@ export function fake_data(context: Context | undefined) {
       ],
       show_time: convertTime(new Date('2024-10-29').getTime()),
       share_time: new Date('2024-10-29').getTime(),
+      share_source:'酷狗概念版'
     },
     {
       content: '感恩遇到的人，经历的事，学到的所有和受到的支持。现在回想年初的目标也在祂的带领下不知不觉的完成了\n\n谢谢今年出现在我身边的一切，因为你们我现在仍然是个开朗的小女孩🥰',

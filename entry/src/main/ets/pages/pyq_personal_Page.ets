@@ -54,11 +54,15 @@ struct Pyq_all_Page {
   new_comment_num: number = 0
   new_comment_content: string[] = []
   new_share_time: number = 0
+  new_share_source:string = ''
   @State selectedDate: string = '选择发布时间'
   @State selectedDistrict: string = '选择地区'
   @State pickerValue: string[] = [] //省市区选中值
   @State areaController: CustomDialogController | null = null //省市区选择组件控制器
-  @State CustomDialogController: CustomDialogController | null = null;
+  // @State CustomDialogController: CustomDialogController | null = null;
+
+  // @State comment_add_Controller: CustomDialogController | null = null;
+
   @Provide pic_sum: number = 0
   @Provide new_pic_list: string[] = []
   @State parsedUrl: GeneratedTypeLiteralInterface_1 | undefined = undefined;
@@ -119,6 +123,7 @@ struct Pyq_all_Page {
               share_time: this.new_share_time,
               link: this.url,
               link_image_url: this.image_url,
+              share_source: this.new_share_source
             }
 
             //获取要发布的朋友圈的年份
@@ -199,12 +204,34 @@ struct Pyq_all_Page {
             this.selectedDate = '选择发布时间'
             this.selectedDistrict = '选择地区'
             this.pickerValue = []
+            this.new_share_source = ''
           }
         }
       ],
     }),
   });
 
+  comment_add_dialog:CustomDialogController = new CustomDialogController({
+    builder: CustomContentDialog({
+      contentBuilder: () => {
+        this.comment_add_dialog_builder();
+      },
+      buttons: [
+        {
+          value: '取消',
+          buttonStyle: ButtonStyleMode.NORMAL,
+          action: () => {
+          }
+        },
+        {
+          value: '确定',
+          fontColor: '#000000',
+          buttonStyle: ButtonStyleMode.EMPHASIZED,
+          background: '#00E050',
+        }
+      ],
+    }),
+  })
 
   @State pyq_personal_Page_data: personal_data = this.fake_personal_data[0]
   @Builder
@@ -341,7 +368,7 @@ struct Pyq_all_Page {
           .TexInput_commonstyles()
 
         Row({ space: 5 }) {
-          Button('切换为好友评论')
+          Button('好友朋友圈模式')
             .layoutWeight(1)
             .buttonStyle(ButtonStyleMode.NORMAL)
             .borderRadius(5)
@@ -351,6 +378,9 @@ struct Pyq_all_Page {
             .buttonStyle(ButtonStyleMode.NORMAL)
             .borderRadius(5)
             .type(ButtonType.Normal)
+            .onClick(()=>{
+              this.comment_add_dialog.open()
+            })
         }
         .width('100%')
 
@@ -360,7 +390,7 @@ struct Pyq_all_Page {
             .TexInput_commonstyles()
             .layoutWeight(1)
             .type(InputType.Number)
-          TextInput({ placeholder: '分享来源（可不填）' })
+          TextInput({ placeholder: '分享来源（可不填）' , text: $$this.new_share_source})
             .TexInput_commonstyles()
             .layoutWeight(2)
         }
@@ -368,13 +398,149 @@ struct Pyq_all_Page {
 
         Button('自定义好友')
           .type(ButtonType.Normal)
-          .backgroundColor('#F3F6F5')
           .buttonStyle(ButtonStyleMode.NORMAL)
+          .borderRadius(5)
           .width('100%')
       }
       .width('100%')
     }
     .scrollBar(BarState.Off)
+  }
+
+  @Builder
+  comment_add_dialog_builder():void{
+    Column({space:5}){
+      Column({space:5}){
+        Row({space:5}){
+            Image($r('app.media.test_avater'))
+              .width(50)
+              .height(50)
+              .objectFit(ImageFit.Cover)
+              .border({width:1})
+            Column({space:5}){
+              TextInput({ placeholder: '昵称'})
+                .TexInput_commonstyles()
+              TextArea({ placeholder: '内容'})
+                .TexInput_commonstyles()
+              Button(this.selectedDate)
+                .buttonStyle(ButtonStyleMode.NORMAL)
+                .type(ButtonType.Normal)
+                .TexInput_commonstyles()
+                .onClick(() => {
+                  this.getUIContext().showDatePickerDialog({
+                    selected: new Date(),
+                    showTime: true,
+                    useMilitaryTime: true,
+                    onDateAccept: (value: Date) => {
+                      this.selectedDate = formatTime(value.getTime(), 0)
+                      // this.new_share_time = value.getTime()
+
+                    }
+                  })
+                })
+            }
+            .layoutWeight(1)
+        }
+        Row({space:10}){
+          Button('随机生成')
+            .type(ButtonType.Normal)
+            .buttonStyle(ButtonStyleMode.NORMAL)
+            .borderRadius(5)
+            .layoutWeight(1)
+          Button('添加评论')
+            .type(ButtonType.Normal)
+            .buttonStyle(ButtonStyleMode.NORMAL)
+            .borderRadius(5)
+            .layoutWeight(1)
+        }.width('100%')
+
+      }
+      .width('100%')
+      Column(){
+        Row(){
+          Text('共1条评论')
+            .fontSize(15)
+          Text('一键清空')
+            .fontSize(15)
+        }
+        .width('100%')
+        .justifyContent(FlexAlign.SpaceAround)
+        List({space:5}) {
+          ListItem(){
+            Row({ space: 5 }) {
+              Image($r('app.media.test_avater'))
+                .width(27)
+                .height(27)
+                .borderRadius(2)
+              Column({ space: 5 }) {
+                Row() {
+                  Text('菠萝吹雪')
+                    .fontSize(11)
+                    .fontColor('#586b95')
+                  Text('2025年1月11号 00:55')
+                    .fontSize(11)
+                    .fontColor('#BEBEBE')
+                }
+                .width('100%')
+                .justifyContent(FlexAlign.SpaceBetween)
+                Row() {
+                  Text('点赞啦，我也去转发咯！')
+                    .fontSize(14)
+                }
+                .width('100%')
+              }
+              .width('100%')
+              .layoutWeight(1)
+            }
+            .alignItems(VerticalAlign.Top)
+            .width('100%')
+          }
+          .borderRadius(5)
+          .padding(5)
+          .border({width:1})
+          ListItem(){
+            Row({ space: 5 }) {
+              Image($r('app.media.test_avater'))
+                .width(27)
+                .height(27)
+                .borderRadius(2)
+              Column({ space: 5 }) {
+                Row() {
+                  Text('菠萝吹雪')
+                    .fontSize(11)
+                    .fontColor('#586b95')
+                  Text('2025年1月11号 00:55')
+                    .fontSize(11)
+                    .fontColor('#BEBEBE')
+                }
+                .width('100%')
+                .justifyContent(FlexAlign.SpaceBetween)
+                Row() {
+                  Text('点赞啦，我也去转发咯！')
+                    .fontSize(14)
+                }
+                .width('100%')
+              }
+              .width('100%')
+              .layoutWeight(1)
+            }
+            .alignItems(VerticalAlign.Top)
+            .width('100%')
+          }
+          .borderRadius(5)
+          .padding(5)
+          .border({width:1})
+        }
+        .width('100%')
+        .scrollBar(BarState.Off)
+        .padding(5)
+      }.backgroundColor('#ECECEC')
+      .width('100%')
+      .borderRadius(5)
+      .padding(5)
+    }
+    .width('100%')
+
   }
 
   aboutToAppear(): void {
