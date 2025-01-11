@@ -1,7 +1,9 @@
-import { LengthMetrics, router } from '@kit.ArkUI';
+import { LengthMetrics, MeasureText, router } from '@kit.ArkUI';
 import { comment_obj, personal_data } from '../utils/dataModel';
-import { Arraysc, image_show } from '../utils/tool';
-
+import { Arraysc, image_show, logoutput } from '../utils/tool';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { it } from '@ohos/hypium';
+import { componentUtils } from '@kit.ArkUI';
 // 全部人朋友圈页面的数据对象接口
 export interface pyq_all_Page_data {
   wx_number: string;
@@ -19,7 +21,8 @@ export interface pyq_all_Page_data {
   share_time: number;
   link?: string;
   link_image_url?: string;
-  share_source?: string
+  share_source?: string;
+  content_lines: number
 }
 
 /*从全局fake_person_data中抽取出每项朋友圈数据，组合成全部人朋友圈页面的数据，
@@ -46,15 +49,64 @@ export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
           share_time: pyqItem.share_time,
           link: pyqItem?.link,
           link_image_url: pyqItem?.link_image_url,
-          share_source: pyqItem?.share_source
+          share_source: pyqItem?.share_source,
+          content_lines: lines_sc(pyqItem.content)
         } as pyq_all_Page_data);
       });
     });
   });
-
   combinedData.sort((a, b) => b.share_time - a.share_time);
   return combinedData;
 }
+
+// 获取文本行数
+function lines_sc(content: string): number {
+  const naturalLines = calculateNaturalLines(content);
+  const extraLines = calculateExtraLines(content);
+  return naturalLines + extraLines;
+}
+
+// 计算自然换行的行数
+function calculateNaturalLines(content: string): number {
+  // 去掉换行符
+  const contentWithoutNewLines = content.replace(/\n/g, '');
+
+  // 测量文本宽度
+  const textSize = MeasureText.measureTextSize({
+    textContent: contentWithoutNewLines,
+    fontSize: 17,
+  });
+
+  // 计算行数
+  const containerWidth = 1011.25;
+  const calculatedLines = textSize && typeof textSize.width === 'number'
+    ? Math.ceil(textSize.width / containerWidth)
+    : 0; // 或者设置一个默认值
+
+  return calculatedLines;
+}
+
+// 计算从第二个连续换行符开始的额外换行符的行数
+function calculateExtraLines(content: string): number {
+  // 匹配所有换行符
+  const matches = content.match(/\n/g) || [];
+
+  // 计算从第二个换行符开始的额外换行符的行数
+  let extraLines = 0;
+  let consecutiveNewLines = 0;
+
+  for (const match of matches) {
+    consecutiveNewLines++;
+    if (consecutiveNewLines > 1) {
+      extraLines++;
+    }
+  }
+
+  return extraLines;
+}
+
+
+
 
 // 随机生成中文姓名
 function getRandomChineseName(): string {
@@ -71,20 +123,31 @@ function getRandomChineseName(): string {
   return firstName + lastName;
 }
 
+
+
 @Entry
 @Component
 struct Pyq_all_Page {
-  @State listlocation: boolean = false
-  @State maxLinesindex: number = 999
+
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') fake_person_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
-  controller: TextController = new TextController()
-  private listScroller: Scroller = new Scroller();
+
+  @State listlocation: boolean = false
+  @State maxLinesindex: number = 5
   @State bg_url: string = this.fake_person_data[0].data.bg as string
+  @State textover: string ='全文'
+
+  listScroller: Scroller = new Scroller();
+
+  textSize : SizeOptions = MeasureText.measureTextSize({
+    textContent: "感恩",
+    fontSize: vp2px(17)
+  });
 
   onPageShow(): void {
     this.bg_url = this.fake_person_data[0].data.bg as string
+    logoutput(this.pyq_all_Page_data,'pyq_all_Page_data')
   }
 
   build() {
@@ -146,6 +209,7 @@ struct Pyq_all_Page {
         .width('100%')
 
         ForEach(this.pyq_all_Page_data, (item: pyq_all_Page_data, index) => {
+
           ListItem() {
             Row({ space: 5 }) {
               Column() {
@@ -161,12 +225,10 @@ struct Pyq_all_Page {
                   .border({ width: 0 })
                   .fontColor('#586b95')
                   .fontSize(18)
-                Text(item.content, { controller: this.controller })
-                  .maxLines(this.maxLinesindex)
-                  .textOverflow({ overflow: TextOverflow.Clip })
-                  .border({ width: 0 })
-                  .width('100%')
-                  .fontSize(17)
+                is_expend({item:item,index:index})
+
+
+
                 if (item.link && item.link !== '') {
                   Row() {
                     Row() {
@@ -195,7 +257,8 @@ struct Pyq_all_Page {
                   .alignItems(VerticalAlign.Center)
                   .backgroundColor('#F7F7F7')
                   .margin({ top: 10 })
-                } else {
+                }
+                else {
                   Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
                     ForEach(item.gallery, (pic: string, index) => {
                       Image(image_show(pic))
@@ -292,7 +355,6 @@ struct Pyq_all_Page {
                 .backgroundColor('#F7F7F7')
                 .width('100%')
                 .margin({ top: 5 })
-
                 .borderRadius(5)
                 .divider({ strokeWidth: 0.3, color: '#ffc4c3c3' })
 
@@ -329,3 +391,45 @@ struct Pyq_all_Page {
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
   }
 }
+
+@Component
+struct is_expend{
+  @State textover: string ='全文'
+  @State maxLinesindex: number = 999
+  @State item:pyq_all_Page_data|undefined = undefined
+  @State content_lines: number = 0
+  index:number=0
+  controller: TextController = new TextController()
+  build(){
+    Column(){
+      Text(this.item!.content,{ controller: this.controller })
+        .maxLines(this.maxLinesindex)
+        .textOverflow({ overflow: TextOverflow.Clip })
+        .border({ width: 0 })
+        .width('100%')
+        .fontSize(17)
+        .onAppear(() => {
+          this.content_lines = this.controller.getLayoutManager().getLineCount()
+          hilog.fatal(0x0001, 'ohos.arkts', 'onAppear'+this.controller.getLayoutManager().getLineCount())
+        })
+      if ( this.content_lines >5){
+        Text(this.textover)
+          .fontColor('#586b95')
+          .onAppear(()=>{
+            this.maxLinesindex = 5
+          })
+          .onClick(()=>{
+            if (this.maxLinesindex == 5){
+              this.maxLinesindex = 999
+              this.textover = '收起'
+            }else {
+              this.maxLinesindex = 5
+              this.textover = '全文'
+            }
+          })
+      }
+    }
+    .alignItems(HorizontalAlign.Start)
+  }
+}
+
