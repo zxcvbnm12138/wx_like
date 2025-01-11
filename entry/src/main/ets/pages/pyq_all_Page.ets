@@ -263,12 +263,33 @@ struct Pyq_all_Page {
                 comment_content: this.new_comment_content,
                 comment_time: new Date().getTime()
               }
-              this.pyq_all_Page_data[this.new_comment_index].comment_content.unshift(new_comment)
-              this.pyq_all_Page_data[this.new_comment_index].comment_num += 1
+              // this.pyq_all_Page_data[this.new_comment_index].comment_content.unshift(new_comment)
+              // this.pyq_all_Page_data[this.new_comment_index].comment_num += 1
+              // this.pyq_all_Page_data = [...this.pyq_all_Page_data]
+              // 假设 index 是要删除的元素的索引
+              let addElement = this.pyq_all_Page_data[this.new_comment_index];
+              let shareTimeToadd = addElement.share_time;
+              let wxNumberToadd = addElement.wx_number;
+              let yearToadd = new Date(shareTimeToadd).getFullYear();
+              // 遍历 personal_data 数组，找到并删除对应的 pyq_data 元素
+              this.fake_person_data.forEach(person => {
+                if (person.wx_number === wxNumberToadd) {
+                  person.data.pyq_data.forEach(yearData => {
+                    if (yearData.year === yearToadd) {
+                      yearData.pyq_data_list.forEach(pyqItem => {
+                        if (pyqItem.share_time === shareTimeToadd){
+                          pyqItem.comment_num += 1
+                          pyqItem.comment_content?.unshift(new_comment)
+                        }
+                      })
+                    }
+                  })
+                }
+              });
+              this.pyq_all_Page_data = combineAndSortData(this.fake_person_data)
               this.new_comment_content = ''
               this.Textcontroller.stopEditing()
-              // logoutput(this.pyq_all_Page_data,'@Provide new_comment_index:number')
-              this.pyq_all_Page_data = [...this.pyq_all_Page_data]
+
             }
           })
       }
@@ -464,10 +485,44 @@ struct show_data{
                   this.item!.love_num -= 1
                   this.is_like = !this.is_like
                   this.item?.like_user.shift()
+                  let addElement = this.pyq_all_Page_data[this.index];
+                  let shareTimeToadd = addElement.share_time;
+                  let wxNumberToadd = addElement.wx_number;
+                  let yearToadd = new Date(shareTimeToadd).getFullYear();
+                  this.fake_person_data.forEach(person => {
+                    if (person.wx_number === wxNumberToadd) {
+                      person.data.pyq_data.forEach(yearData => {
+                        if (yearData.year === yearToadd) {
+                          yearData.pyq_data_list.forEach(pyqItem => {
+                            if (pyqItem.share_time === shareTimeToadd){
+                              pyqItem.love_num -= 1
+                            }
+                          })
+                        }
+                      })
+                    }
+                  });
                 }else{
                   this.item!.love_num += 1
                   this.is_like = !this.is_like
                   this.item?.like_user.unshift(like_name)
+                  let addElement = this.pyq_all_Page_data[this.index];
+                  let shareTimeToadd = addElement.share_time;
+                  let wxNumberToadd = addElement.wx_number;
+                  let yearToadd = new Date(shareTimeToadd).getFullYear();
+                  this.fake_person_data.forEach(person => {
+                    if (person.wx_number === wxNumberToadd) {
+                      person.data.pyq_data.forEach(yearData => {
+                        if (yearData.year === yearToadd) {
+                          yearData.pyq_data_list.forEach(pyqItem => {
+                            if (pyqItem.share_time === shareTimeToadd){
+                              pyqItem.love_num += 1
+                            }
+                          })
+                        }
+                      })
+                    }
+                  });
                 }
                 setTimeout(() => {
                   this.isShow = Visibility.None
