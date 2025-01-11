@@ -1,7 +1,6 @@
 import { LengthMetrics, router } from '@kit.ArkUI';
-import { comment_obj, personal_data, personal_every_year_pyq_data, pyq_data } from '../utils/dataModel';
+import { comment_obj, personal_data } from '../utils/dataModel';
 import { Arraysc, image_show } from '../utils/tool';
-import { hilog } from '@kit.PerformanceAnalysisKit';
 
 export interface pyq_all_Page_data {
   wx_number: string;
@@ -19,7 +18,7 @@ export interface pyq_all_Page_data {
   share_time: number;
   link?: string;
   link_image_url?: string;
-  share_source?:string
+  share_source?: string
 }
 
 export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
@@ -55,8 +54,12 @@ export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
 }
 
 function getRandomChineseName(): string {
-  const firstNames = ['赵', '钱', '孙', '李', '周', '吴', '郑', '王', '冯', '陈', '褚', '卫', '蒋', '沈', '韩', '杨', '朱', '秦', '尤', '许'];
-  const lastNames = ['伟', '芳', '娜', '秀英', '敏', '静', '丽', '强', '磊', '军', '洋', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞', '平'];
+  const firstNames =
+    ['赵', '钱', '孙', '李', '周', '吴', '郑', '王', '冯', '陈', '褚', '卫', '蒋', '沈', '韩', '杨', '朱', '秦', '尤',
+      '许'];
+  const lastNames =
+    ['伟', '芳', '娜', '秀英', '敏', '静', '丽', '强', '磊', '军', '洋', '艳', '杰', '娟', '涛', '明', '超', '秀兰',
+      '霞', '平'];
 
   const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
   const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
@@ -74,7 +77,7 @@ struct Pyq_all_Page {
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
   controller: TextController = new TextController()
   private listScroller: Scroller = new Scroller();
-  @State bg_url:string = this.fake_person_data[0].data.bg as string
+  @State bg_url: string = this.fake_person_data[0].data.bg as string
 
   onPageShow(): void {
     this.bg_url = this.fake_person_data[0].data.bg as string
@@ -188,8 +191,7 @@ struct Pyq_all_Page {
                   .alignItems(VerticalAlign.Center)
                   .backgroundColor('#F7F7F7')
                   .margin({ top: 10 })
-                }
-                else {
+                } else {
                   Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
                     ForEach(item.gallery, (pic: string, index) => {
                       Image(image_show(pic))
@@ -206,18 +208,16 @@ struct Pyq_all_Page {
                   .margin({ top: 5 })
 
                 Row() {
-                  Row({space:5}){
+                  Row({ space: 5 }) {
                     Text(item.show_time).fontColor('#BEBEBE').fontSize(12)
-                    if(item.share_source && item.share_source !== '')
-                    {
+                    if (item.share_source && item.share_source !== '') {
                       Text(item.share_source).fontColor('#BEBEBE').fontSize(12)
                     }
-                    if (item.wx_number == this.fake_person_data[0].wx_number)
-                    {
+                    if (item.wx_number == this.fake_person_data[0].wx_number) {
                       Image($r('app.media.del'))
                         .width(16)
                         .height(16)
-                        .onClick(()=>{
+                        .onClick(() => {
                           // 假设 index 是要删除的元素的索引
                           let deletedElement = this.pyq_all_Page_data.splice(index, 1)[0];
                           let shareTimeToDelete = deletedElement.share_time;
@@ -247,15 +247,15 @@ struct Pyq_all_Page {
                 .width('100%')
                 .justifyContent(FlexAlign.SpaceBetween)
 
-                List({space:0}){
-                  if (item.love_num!== 0 ){
-                  ListItem(){
+                List({ space: 0 }) {
+                  if (item.love_num !== 0) {
+                    ListItem() {
                       Row() {
-                        Text(){
+                        Text() {
                           Span('♡ ')
-                          ForEach(Arraysc(item.love_num),(num:number,index)=>{
+                          ForEach(Arraysc(item.love_num), (num: number, index) => {
                             Span(getRandomChineseName())
-                            if (Arraysc(item.love_num).length !== index+1) {
+                            if (Arraysc(item.love_num).length !== index + 1) {
                               Span(', ')
                             }
                           })
@@ -266,14 +266,14 @@ struct Pyq_all_Page {
                         .borderRadius(0)
                       }
                       .alignItems(VerticalAlign.Top)
-                    }.padding( 5 )
+                    }.padding(5)
                   }
-                  if (item.comment_num!== 0 ){
-                    ListItem(){
-                      Column({space:5}){
-                        ForEach(item.comment_content,(comment_item:comment_obj,index)=>{
-                          Text(){
-                            Span(comment_item.comment_nickname+': ')
+                  if (item.comment_num !== 0) {
+                    ListItem() {
+                      Column({ space: 5 }) {
+                        ForEach(item.comment_content, (comment_item: comment_obj, index) => {
+                          Text() {
+                            Span(comment_item.comment_nickname + ': ')
                               .fontColor('#586b95')
                             Span(comment_item.comment_content)
                           }
@@ -282,7 +282,7 @@ struct Pyq_all_Page {
                           .width('100%')
                         })
                       }
-                    }.padding( 5 )
+                    }.padding(5)
                   }
                 }
                 .backgroundColor('#F7F7F7')
@@ -290,7 +290,7 @@ struct Pyq_all_Page {
                 .margin({ top: 5 })
 
                 .borderRadius(5)
-                .divider({strokeWidth:0.3,color:'#ffc4c3c3' })
+                .divider({ strokeWidth: 0.3, color: '#ffc4c3c3' })
 
               }
               .padding({ top: 2 })

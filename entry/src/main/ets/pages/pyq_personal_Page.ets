@@ -1,5 +1,6 @@
 import { CustomContentDialog, router } from '@kit.ArkUI';
-import { formatTime, image_show, ImageUploadLocal, sortPyqData, sortPyqDataList, logoutput } from '../utils/tool';
+import { formatTime, image_show, ImageUploadLocal, sortPyqData, sortPyqDataList, logoutput,
+  random_sc } from '../utils/tool';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import {
   comment_obj,
@@ -60,9 +61,9 @@ struct Pyq_all_Page {
   new_share_time: number = new Date().getTime()
   new_share_source:string = ''
 
-  new_comment_avatar:string = this.fake_personal_data[0].data.avatar
-  new_comment_nickname:string = ''
-  new_comment_contents: string = ''
+  @State new_comment_avatar:string = this.fake_personal_data[0].data.avatar
+  @State new_comment_nickname:string = ''
+  @State new_comment_contents: string = ''
   new_comment_share_time: number = new Date().getTime();
 
   @State selectedDate: string = '选择发布时间'
@@ -444,7 +445,7 @@ struct Pyq_all_Page {
                 let res = (await ImageUploadLocal(1, this.context.getApplicationContext()))
                 if (res.avater_url !== '') {
                   this.new_comment_avatar = res.avater_url as string
-                  this.commentSrcPixmap = image_show(res.avater_url as string)
+                  this.commentSrcPixmap = image_show(this.new_comment_avatar)
                 }
               })
             Column({space:5}){
@@ -476,6 +477,15 @@ struct Pyq_all_Page {
             .buttonStyle(ButtonStyleMode.NORMAL)
             .borderRadius(5)
             .layoutWeight(1)
+            .onClick(() => {
+              let random_comment_obj:comment_obj = random_sc(this.fake_personal_data[0].data.avatar)
+              this.new_comment_avatar = random_comment_obj.comment_avatar
+              this.new_comment_nickname = random_comment_obj.comment_nickname
+              this.new_comment_contents = random_comment_obj.comment_content
+              this.comment_selectedDate = formatTime(random_comment_obj.comment_time,0)
+              this.commentSrcPixmap = image_show(this.new_comment_avatar)
+
+            })
           Button('添加评论')
             .type(ButtonType.Normal)
             .buttonStyle(ButtonStyleMode.NORMAL)
@@ -736,7 +746,18 @@ struct Pyq_all_Page {
                   .alignItems(VerticalAlign.Center)
                   .margin({ left: 10 })
                   .backgroundColor('#F7F7F7')
-                } else {
+                  .onClick(() => {
+                    router.pushUrl({
+                      url: 'pages/dianzan_Page',
+                      params: {
+                        avater: this.pyq_personal_Page_data.data.avatar,
+                        nickname: this.pyq_personal_Page_data.data.nickname,
+                        result: item
+                      }
+                    })
+                  })
+                }
+                else {
                   Row() {
                     Pyq_Layout({
                       picture_num: item.gallery.length,
@@ -744,7 +765,6 @@ struct Pyq_all_Page {
                     })
                       .onClick(() => {
                         router.pushUrl({
-
                           url: 'pages/pyq_detail_Page',
                           params: {
                             result: item
@@ -805,3 +825,5 @@ struct Pyq_all_Page {
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
   }
 }
+
+

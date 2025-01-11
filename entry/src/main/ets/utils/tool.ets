@@ -3,7 +3,7 @@ import fs from '@ohos.file.fs';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { image } from '@kit.ImageKit';
 import { buffer } from '@kit.ArkTS';
-import { personal_data, personal_every_year_pyq_data } from './dataModel';
+import { comment_obj, personal_data, personal_every_year_pyq_data } from './dataModel';
 
 export function Arraysc(t: number): number[] {
   let numbers: number[] = [];
@@ -196,4 +196,30 @@ export  function logoutput(obj:object,name:string){
     hilog.fatal(1, `${name}:`, '%{public}s', str);
     logIndex = logIndex + 1000
   }
+}
+export function random_sc(avatar:string): comment_obj {
+  const names = ['菠萝吹雪', '考拉例外', '小明', '小红', '李华'];
+  const comments = [
+    '真不错啊',
+    '我喜欢这个',
+    '好赞',
+    '谢谢分享',
+    '非常有趣',
+    '支持一下',
+    '加油',
+    '棒',
+    '太好了',
+    '期待更多'
+  ];
+  let avatar_url= avatar
+  let nickname = names[Math.floor(Math.random() * names.length)]
+  let content = comments[Math.floor(Math.random() * comments.length)]
+  let time = new Date().getTime() - Math.floor(Math.random() * 86400000 * 30)
+  let obj:comment_obj = {
+    comment_avatar: avatar_url,
+    comment_nickname: nickname,
+    comment_content: content,
+    comment_time: time
+  }
+  return obj
 }
