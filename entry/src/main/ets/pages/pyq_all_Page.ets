@@ -22,6 +22,7 @@ export interface pyq_all_Page_data {
   link_image_url?: string;
   share_source?: string;
   content_lines: number
+  like_user:string[]
 }
 
 /*从全局fake_person_data中抽取出每项朋友圈数据，组合成全部人朋友圈页面的数据，
@@ -49,7 +50,8 @@ export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
           link: pyqItem?.link,
           link_image_url: pyqItem?.link_image_url,
           share_source: pyqItem?.share_source,
-          content_lines: lines_sc(pyqItem.content)
+          content_lines: lines_sc(pyqItem.content),
+          like_user: generateRandomNames(pyqItem.love_num)
         } as pyq_all_Page_data);
       });
     });
@@ -119,24 +121,28 @@ function getRandomChineseName(): string {
 
   return firstName + lastName;
 }
+// 根据点赞个数生成对应数量的随机中文名字数组
+function generateRandomNames(love_num: number): string[] {
+  const names: string[] = [];
+  for (let i = 0; i < love_num; i++) {
+    names.push(getRandomChineseName());
+  }
+  return names;
+}
 
 
 @Entry
 @Component
 struct Pyq_all_Page {
+  // @State isFocus: boolean =t ;
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') fake_person_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
   @State listlocation: boolean = false
-  @State maxLinesindex: number = 5
   @State bg_url: string = this.fake_person_data[0].data.bg as string
-  @State textover: string = '全文'
   listScroller: Scroller = new Scroller();
-  textSize: SizeOptions = MeasureText.measureTextSize({
-    textContent: "感恩",
-    fontSize: vp2px(17)
-  });
 
+  @Provide comment_square_show:number = -1
   onPageShow(): void {
     this.bg_url = this.fake_person_data[0].data.bg as string
     logoutput(this.pyq_all_Page_data, 'pyq_all_Page_data')
@@ -160,15 +166,13 @@ struct Pyq_all_Page {
       }
       .justifyContent(FlexAlign.SpaceBetween)
       .width('100%')
-      .zIndex(2)
+      .zIndex(3)
       .backgroundColor(this.listlocation ? '#EDEDED' : Color.Transparent)
       .height(px2vp(this.topRectHeight) + 54)
       .padding({ top: px2vp(this.topRectHeight), left: 10, right: 10 })
-      .border({ width: 0 })
       .animation({
         duration: 200
       })
-
 
       List({ scroller: this.listScroller }) {
         ListItem() {
@@ -201,161 +205,212 @@ struct Pyq_all_Page {
         .width('100%')
 
         ForEach(this.pyq_all_Page_data, (item: pyq_all_Page_data, index) => {
-
           ListItem() {
-            Row({ space: 5 }) {
-              Column() {
-                Image(image_show(item.avatar))
-                  .width(50)
-                  .height(50)
-                  .objectFit(ImageFit.Cover)
-                  .borderRadius(8)
-              }
-
-              Column() {
-                Text(item.nickname)
-                  .border({ width: 0 })
-                  .fontColor('#586b95')
-                  .fontSize(18)
-                is_expend({ item: item, index: index })
-
-
-                if (item.link && item.link !== '') {
-                  Row() {
-                    Row() {
-                      Image(item.link_image_url)
-                        .width(30)
-                        .height(30)
-                        .objectFit(ImageFit.Cover)
-                        .border({ width: 0 })
-                    }
-                    .justifyContent(FlexAlign.Center)
-                    .alignItems(VerticalAlign.Center)
-                    .width(40)
-                    .height(40)
-                    .border({ width: 0 })
-
-                    Text(item.link)
-                      .fontSize(18)
-                      .maxLines(2)
-                      .textOverflow({ overflow: TextOverflow.Ellipsis })
-                      .layoutWeight(1)
-                      .textAlign(TextAlign.Start)
-                      .border({ width: 0 })
-                  }
-                  .border({ width: 0 })
-                  .padding(5)
-                  .alignItems(VerticalAlign.Center)
-                  .backgroundColor('#F7F7F7')
-                  .margin({ top: 10 })
-                } else {
-                  Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
-                    ForEach(item.gallery, (pic: string, index) => {
-                      Image(image_show(pic))
-                        .objectFit(ImageFit.Cover)
-                        .width(93)
-                        .height(93)
-                    })
-                  }
-                  .width('100%')
-                  .margin({ top: 10 })
-                }
-
-                Text(item.location).border({ width: 0 }).fontColor('#586b95').fontSize(14)
-                  .margin({ top: 5 })
-
-                Row() {
-                  Row({ space: 5 }) {
-                    Text(item.show_time).fontColor('#BEBEBE').fontSize(12)
-                    if (item.share_source && item.share_source !== '') {
-                      Text(item.share_source).fontColor('#BEBEBE').fontSize(12)
-                    }
-                    if (item.wx_number == this.fake_person_data[0].wx_number) {
-                      Image($r('app.media.del'))
-                        .width(16)
-                        .height(16)
-                        .onClick(() => {
-                          // 假设 index 是要删除的元素的索引
-                          let deletedElement = this.pyq_all_Page_data.splice(index, 1)[0];
-                          let shareTimeToDelete = deletedElement.share_time;
-                          let wxNumberToDelete = deletedElement.wx_number;
-                          let yearToDelete = new Date(shareTimeToDelete).getFullYear();
-                          // 遍历 personal_data 数组，找到并删除对应的 pyq_data 元素
-                          this.fake_person_data.forEach(person => {
-                            if (person.wx_number === wxNumberToDelete) {
-                              person.data.pyq_data.forEach(yearData => {
-                                if (yearData.year === yearToDelete) {
-                                  yearData.pyq_data_list = yearData.pyq_data_list.filter(pyqItem => {
-                                    return pyqItem.share_time !== shareTimeToDelete;
-                                  })
-                                }
-                              })
-                            }
-                          });
-
-                        })
-                    }
-                  }
-
-                  Image($r('app.media.ICO28_more')).width(30)
-                    .height(23)
-                    .backgroundColor('#F7F7F7').borderRadius(5)
-                }.border({ width: 0 })
-                .width('100%')
-                .justifyContent(FlexAlign.SpaceBetween)
-
-                List({ space: 0 }) {
-                  if (item.love_num !== 0) {
-                    ListItem() {
-                      Row() {
-                        Text() {
-                          Span('♡ ')
-                          ForEach(Arraysc(item.love_num), (num: number, index) => {
-                            Span(getRandomChineseName())
-                            if (Arraysc(item.love_num).length !== index + 1) {
-                              Span(', ')
-                            }
-                          })
-                        }
-                        .fontSize(14)
-                        .width('100%')
-                        .fontColor('#586b95')
-                        .borderRadius(0)
-                      }
-                      .alignItems(VerticalAlign.Top)
-                    }.padding(5)
-                  }
-                  if (item.comment_num !== 0) {
-                    ListItem() {
-                      Column({ space: 5 }) {
-                        ForEach(item.comment_content, (comment_item: comment_obj, index) => {
-                          Text() {
-                            Span(comment_item.comment_nickname + ': ')
-                              .fontColor('#586b95')
-                            Span(comment_item.comment_content)
-                          }
-                          .fontSize(14)
-                          .lineHeight(18)
-                          .width('100%')
-                        })
-                      }
-                    }.padding(5)
-                  }
-                }
-                .backgroundColor('#F7F7F7')
-                .width('100%')
-                .margin({ top: 5 })
-                .borderRadius(5)
-                .divider({ strokeWidth: 0.3, color: '#ffc4c3c3' })
-
-              }
-              .padding({ top: 2 })
-              .layoutWeight(1)
-              .width('100%')
-              .alignItems(HorizontalAlign.Start)
-            }
-            .width('100%')
-            .alignItems(VerticalAlign.Top)
+            // Row({ space: 5 }) {
+            //   Column() {
+            //     Image(image_show(item.avatar))
+            //       .width(50)
+            //       .height(50)
+            //       .objectFit(ImageFit.Cover)
+            //       .borderRadius(8)
+            //   }
+            //
+            //   Column() {
+            //     Text(item.nickname)
+            //       .border({ width: 0 })
+            //       .fontColor('#586b95')
+            //       .fontSize(18)
+            //     is_expend({ item: item, index: index })
+            //
+            //
+            //     if (item.link && item.link !== '') {
+            //       Row() {
+            //         Row() {
+            //           Image(item.link_image_url)
+            //             .width(30)
+            //             .height(30)
+            //             .objectFit(ImageFit.Cover)
+            //             .border({ width: 0 })
+            //         }
+            //         .justifyContent(FlexAlign.Center)
+            //         .alignItems(VerticalAlign.Center)
+            //         .width(40)
+            //         .height(40)
+            //         .border({ width: 0 })
+            //
+            //         Text(item.link)
+            //           .fontSize(18)
+            //           .maxLines(2)
+            //           .textOverflow({ overflow: TextOverflow.Ellipsis })
+            //           .layoutWeight(1)
+            //           .textAlign(TextAlign.Start)
+            //           .border({ width: 0 })
+            //       }
+            //       .border({ width: 0 })
+            //       .padding(5)
+            //       .alignItems(VerticalAlign.Center)
+            //       .backgroundColor('#F7F7F7')
+            //       .margin({ top: 10 })
+            //     } else {
+            //       Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
+            //         ForEach(item.gallery, (pic: string, index) => {
+            //           Image(image_show(pic))
+            //             .objectFit(ImageFit.Cover)
+            //             .width(93)
+            //             .height(93)
+            //         })
+            //       }
+            //       .width('100%')
+            //       .margin({ top: 10 })
+            //     }
+            //
+            //     Text(item.location).border({ width: 0 }).fontColor('#586b95').fontSize(14)
+            //       .margin({ top: 5 })
+            //
+            //     Row() {
+            //       Row({ space: 5 }) {
+            //         Text(item.show_time).fontColor('#BEBEBE').fontSize(12)
+            //         if (item.share_source && item.share_source !== '') {
+            //           Text(item.share_source).fontColor('#BEBEBE').fontSize(12)
+            //         }
+            //         if (item.wx_number == this.fake_person_data[0].wx_number) {
+            //           Image($r('app.media.del'))
+            //             .width(16)
+            //             .height(16)
+            //             .onClick(() => {
+            //               // 假设 index 是要删除的元素的索引
+            //               let deletedElement = this.pyq_all_Page_data.splice(index, 1)[0];
+            //               let shareTimeToDelete = deletedElement.share_time;
+            //               let wxNumberToDelete = deletedElement.wx_number;
+            //               let yearToDelete = new Date(shareTimeToDelete).getFullYear();
+            //               // 遍历 personal_data 数组，找到并删除对应的 pyq_data 元素
+            //               this.fake_person_data.forEach(person => {
+            //                 if (person.wx_number === wxNumberToDelete) {
+            //                   person.data.pyq_data.forEach(yearData => {
+            //                     if (yearData.year === yearToDelete) {
+            //                       yearData.pyq_data_list = yearData.pyq_data_list.filter(pyqItem => {
+            //                         return pyqItem.share_time !== shareTimeToDelete;
+            //                       })
+            //                     }
+            //                   })
+            //                 }
+            //               });
+            //
+            //             })
+            //         }
+            //       }
+            //
+            //       Stack(){
+            //         Row(){
+            //           Row({space:5}){
+            //             Image($r('app.media.love'))
+            //               .width(20)
+            //               .fillColor('#FCFCFC')
+            //             Text('赞')
+            //               .fontColor('#FCFCFC')
+            //               .fontSize(20)
+            //           }
+            //           .justifyContent(FlexAlign.Center)
+            //           .alignItems(VerticalAlign.Center)
+            //           .layoutWeight(1)
+            //
+            //           Row(){}
+            //           .width(1)
+            //           .height('70%')
+            //           .border({ width: 0.7,color:'#FCFCFC'})
+            //
+            //           Row({space:5}){
+            //             Image($r('app.media.bubble'))
+            //               .fillColor('#FCFCFC')
+            //               .width(20)
+            //             Text('评论')
+            //               .fontColor('#FCFCFC')
+            //               .fontSize(20)
+            //           }
+            //           .justifyContent(FlexAlign.Center)
+            //           .alignItems(VerticalAlign.Center)
+            //           .layoutWeight(1)
+            //         }
+            //         .height(43)
+            //         .backgroundColor('#4C4C4C')
+            //         .borderRadius(5)
+            //         .width(200)
+            //         .visibility(this.isShow)
+            //         .animation({
+            //           duration: 200,
+            //         })
+            //         .zIndex(1)
+            //         Image($r('app.media.ICO28_more')).width(30)
+            //           .height(23)
+            //           .backgroundColor('#F7F7F7').borderRadius(5)
+            //           .onClick(() => {
+            //             if (this.isShow == Visibility.Visible) {
+            //               this.isShow = Visibility.None
+            //             }else {
+            //               this.isShow = Visibility.Visible
+            //             }
+            //           })
+            //       }
+            //       .alignContent(Alignment.End)
+            //       .layoutWeight(1)
+            //
+            //     }.border({ width: 0 })
+            //     .width('100%')
+            //     .justifyContent(FlexAlign.SpaceBetween)
+            //
+            //     List({ space: 0 }) {
+            //       if (item.love_num !== 0) {
+            //         ListItem() {
+            //           Row() {
+            //             Text() {
+            //               Span('♡ ')
+            //               ForEach(Arraysc(item.love_num), (num: number, index) => {
+            //                 Span(getRandomChineseName())
+            //                 if (Arraysc(item.love_num).length !== index + 1) {
+            //                   Span(', ')
+            //                 }
+            //               })
+            //             }
+            //             .fontSize(14)
+            //             .width('100%')
+            //             .fontColor('#586b95')
+            //             .borderRadius(0)
+            //           }
+            //           .alignItems(VerticalAlign.Top)
+            //         }.padding(5)
+            //       }
+            //       if (item.comment_num !== 0) {
+            //         ListItem() {
+            //           Column({ space: 5 }) {
+            //             ForEach(item.comment_content, (comment_item: comment_obj, index) => {
+            //               Text() {
+            //                 Span(comment_item.comment_nickname + ': ')
+            //                   .fontColor('#586b95')
+            //                 Span(comment_item.comment_content)
+            //               }
+            //               .fontSize(14)
+            //               .lineHeight(18)
+            //               .width('100%')
+            //             })
+            //           }
+            //         }.padding(5)
+            //       }
+            //     }
+            //     .backgroundColor('#F7F7F7')
+            //     .width('100%')
+            //     .margin({ top: 5 })
+            //     .borderRadius(5)
+            //     .divider({ strokeWidth: 0.3, color: '#ffc4c3c3' })
+            //
+            //   }
+            //   .padding({ top: 2 })
+            //   .layoutWeight(1)
+            //   .width('100%')
+            //   .alignItems(HorizontalAlign.Start)
+            // }
+            // .width('100%')
+            // .alignItems(VerticalAlign.Top)
+            show_data({item:item,index:index})
           }
           .margin({ top: 32 })
           .padding({ right: 10, left: 10, bottom: 10 })
@@ -367,17 +422,71 @@ struct Pyq_all_Page {
       })
       .width('100%')
       .height('100%')
-      .border({ width: 0 })
       .backgroundColor('#ffffff')
       .scrollBar(BarState.Off)
       .onDidScroll(() => {
         let location = this.listScroller.currentOffset().yOffset
         this.listlocation = location >= 168
       })
+      .zIndex(2)
+
+
+      Row({ space: 10 }) {
+        TextArea({ placeholder: '评论', })
+          .placeholderColor('##B2B2B2')
+          .backgroundColor('#ffffff')
+          .layoutWeight(1)
+          .borderRadius(5)
+          .caretColor('#00E050')
+          .barState(BarState.Off)
+          .heightAdaptivePolicy(TextHeightAdaptivePolicy.LAYOUT_CONSTRAINT_FIRST)
+          .defaultFocus(false)
+          .enableKeyboardOnFocus(true)
+          .id('1')
+        Image($r('app.media.smile'))
+          .width(28)
+          .height(28)
+        Button('发送', { type: ButtonType.Normal, stateEffect: true })
+          .borderRadius(5)
+          .backgroundColor('#00E050')
+          .fontColor('#ffffff')
+          .height(34)
+          .width(65)
+          .onClick(() => {
+            this.comment_square_show = -1
+            // if (this.new_comment_content !== '') {
+            //
+            //   let new_comment :comment_obj = {
+            //     comment_avatar: this.personal_data[0].data.avatar,
+            //     comment_nickname: this.personal_data[0].data.nickname,
+            //     comment_content: this.new_comment_content,
+            //     comment_time: new Date().getTime()
+            //   }
+            //   this.fake_person_data?.comment_content?.unshift(new_comment)
+            //   this.fake_person_data!.comment_num += 1
+            //   this.new_comment_content = ''
+            // }
+          })
+      }
+      .width('100%')
+      .backgroundColor('#F7F7F7')
+      .padding(10)
+      .alignItems(VerticalAlign.Center)
+      .justifyContent(FlexAlign.Center)
+      .zIndex(this.comment_square_show)
+      .margin({top: '100%'})
+      .width('100%')
+      .height(55)
+
+
+      // .visibility(this.comment_square_show?Visibility.Visible:Visibility.None)
+
+
     }
+    .width('100%')
+    .height('100%')
     .alignContent(Alignment.Top)
     .backgroundColor('#EDEDED')
-    .border({ width: 1 })
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
   }
 }
@@ -421,6 +530,249 @@ struct is_expend {
       }
     }
     .alignItems(HorizontalAlign.Start)
+  }
+}
+
+@Component
+struct show_data{
+  @State item: pyq_all_Page_data | undefined = undefined
+  @State isShow: Visibility = Visibility.Hidden;
+  @StorageLink('fake_person_data') fake_person_data: personal_data[] = []
+  @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
+  @State is_like:boolean = false
+  @Consume comment_square_show:number
+  index: number = 0
+  build() {
+    Row({ space: 5 }) {
+      Column() {
+        Image(image_show(this.item!.avatar))
+          .width(50)
+          .height(50)
+          .objectFit(ImageFit.Cover)
+          .borderRadius(8)
+      }
+
+      Column() {
+        Text(this.item!.nickname)
+          .border({ width: 0 })
+          .fontColor('#586b95')
+          .fontSize(18)
+
+        is_expend({ item: this.item, index: this.index })
+
+        if (this.item!.link && this.item!.link !== '') {
+          Row() {
+            Row() {
+              Image(this.item!.link_image_url)
+                .width(30)
+                .height(30)
+                .objectFit(ImageFit.Cover)
+                .border({ width: 0 })
+            }
+            .justifyContent(FlexAlign.Center)
+            .alignItems(VerticalAlign.Center)
+            .width(40)
+            .height(40)
+            .border({ width: 0 })
+
+            Text(this.item!.link)
+              .fontSize(18)
+              .maxLines(2)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .layoutWeight(1)
+              .textAlign(TextAlign.Start)
+              .border({ width: 0 })
+          }
+          .border({ width: 0 })
+          .padding(5)
+          .alignItems(VerticalAlign.Center)
+          .backgroundColor('#F7F7F7')
+          .margin({ top: 10 })
+        } else {
+          Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
+            ForEach(this.item!.gallery, (pic: string, index) => {
+              Image(image_show(pic))
+                .objectFit(ImageFit.Cover)
+                .width(93)
+                .height(93)
+            })
+          }
+          .width('100%')
+          .margin({ top: 10 })
+        }
+
+        Text(this.item!.location).border({ width: 0 }).fontColor('#586b95').fontSize(14)
+          .margin({ top: 5 })
+
+        Row() {
+          Row({ space: 5 }) {
+            Text(this.item!.show_time).fontColor('#BEBEBE').fontSize(12)
+            if (this.item!.share_source && this.item!.share_source !== '') {
+              Text(this.item!.share_source).fontColor('#BEBEBE').fontSize(12)
+            }
+            if (this.item!.wx_number == this.fake_person_data[0].wx_number) {
+              Image($r('app.media.del'))
+                .width(16)
+                .height(16)
+                .onClick(() => {
+                  // 假设 index 是要删除的元素的索引
+                  let deletedElement = this.pyq_all_Page_data.splice(this.index, 1)[0];
+                  let shareTimeToDelete = deletedElement.share_time;
+                  let wxNumberToDelete = deletedElement.wx_number;
+                  let yearToDelete = new Date(shareTimeToDelete).getFullYear();
+                  // 遍历 personal_data 数组，找到并删除对应的 pyq_data 元素
+                  this.fake_person_data.forEach(person => {
+                    if (person.wx_number === wxNumberToDelete) {
+                      person.data.pyq_data.forEach(yearData => {
+                        if (yearData.year === yearToDelete) {
+                          yearData.pyq_data_list = yearData.pyq_data_list.filter(pyqItem => {
+                            return pyqItem.share_time !== shareTimeToDelete;
+                          })
+                        }
+                      })
+                    }
+                  });
+
+                })
+            }
+          }
+
+          Stack(){
+            Row(){
+              Row({space:5}){
+                Image($r(this.is_like ? 'app.media.bubble' : 'app.media.love'))
+                  .width(16)
+                  .fillColor('#FCFCFC')
+                Text('赞')
+                  .fontColor('#FCFCFC')
+                  .fontSize(16)
+              }
+              .justifyContent(FlexAlign.Center)
+              .alignItems(VerticalAlign.Center)
+              .layoutWeight(1)
+              .onClick(() => {
+                let like_name:string = this.fake_person_data[0].data.nickname
+                if (this.is_like) {
+                  this.item!.love_num -= 1
+                  this.is_like = !this.is_like
+                  this.item?.like_user.shift()
+                }else{
+                  this.item!.love_num += 1
+                  this.is_like = !this.is_like
+                  this.item?.like_user.unshift(like_name)
+                }
+                setTimeout(() => {
+                  this.isShow = Visibility.None
+                }, 300);
+
+              })
+
+              Row(){}
+              .width(1)
+              .height('70%')
+              .border({ width: 0.7,color:'#FCFCFC'})
+
+              Row({space:5}){
+                Image($r('app.media.bubble'))
+                  .fillColor('#FCFCFC')
+                  .width(16)
+                Text('评论')
+                  .fontColor('#FCFCFC')
+                  .fontSize(16)
+              }
+              .justifyContent(FlexAlign.Center)
+              .alignItems(VerticalAlign.Center)
+              .layoutWeight(1)
+              .onClick(() => {
+                this.comment_square_show = 3
+                this.getUIContext().getFocusController().requestFocus('1')
+                setTimeout(() => {
+                  this.isShow = Visibility.None
+                }, 300);
+              })
+            }
+            .height(35)
+            .backgroundColor('#4C4C4C')
+            .borderRadius(5)
+            .width(180)
+            .visibility(this.isShow)
+            .animation({
+              duration: 200,
+            })
+            .zIndex(1)
+            .margin({right:32})
+            Image($r('app.media.ICO28_more')).width(30)
+              .height(23)
+              .backgroundColor('#F7F7F7').borderRadius(5)
+              .onClick(() => {
+                if (this.isShow == Visibility.Visible) {
+                  this.isShow = Visibility.None
+                }else {
+                  this.isShow = Visibility.Visible
+                }
+              })
+          }
+          .alignContent(Alignment.End)
+          .layoutWeight(1)
+
+        }
+        .height(25)
+        .border({ width: 0 })
+        .width('100%')
+        .justifyContent(FlexAlign.SpaceBetween)
+
+        List({ space: 0 }) {
+          if (this.item!.love_num !== 0) {
+            ListItem() {
+              Row() {
+                Text() {
+                  Span('♡ ')
+                  ForEach(this.item?.like_user, (like: string, index) => {
+                    Span(like)
+                    if (this.item?.like_user.length !== index + 1) {
+                      Span(', ')
+                    }
+                  })
+                }
+                .fontSize(14)
+                .width('100%')
+                .fontColor('#586b95')
+                .borderRadius(0)
+              }
+              .alignItems(VerticalAlign.Top)
+            }.padding(5)
+          }
+          if (this.item!.comment_num !== 0) {
+            ListItem() {
+              Column({ space: 5 }) {
+                ForEach(this.item!.comment_content, (comment_item: comment_obj, index) => {
+                  Text() {
+                    Span(comment_item.comment_nickname + ': ')
+                      .fontColor('#586b95')
+                    Span(comment_item.comment_content)
+                  }
+                  .fontSize(14)
+                  .lineHeight(18)
+                  .width('100%')
+                })
+              }
+            }.padding(5)
+          }
+        }
+        .backgroundColor('#F7F7F7')
+        .width('100%')
+        .margin({ top: 5 })
+        .borderRadius(5)
+        .divider({ strokeWidth: 0.3, color: '#ffc4c3c3' })
+
+      }
+      .padding({ top: 2 })
+      .layoutWeight(1)
+      .width('100%')
+      .alignItems(HorizontalAlign.Start)
+    }
+    .width('100%')
+    .alignItems(VerticalAlign.Top)
   }
 }
 

@@ -79,10 +79,6 @@ struct Pyq_all_Page {
   @State selectedDistrict: string = '选择地区'
   @State pickerValue: string[] = [] //省市区选中值
   @State areaController: CustomDialogController | null = null //省市区选择组件控制器
-  // @State CustomDialogController: CustomDialogController | null = null;
-
-  // @State comment_add_Controller: CustomDialogController | null = null;
-
   @Provide pic_sum: number = 0
   @Provide new_pic_list: string[] = []
   @State parsedUrl: GeneratedTypeLiteralInterface_1 | undefined = undefined;
@@ -607,7 +603,6 @@ struct Pyq_all_Page {
   }
 
   onPageShow(): void {
-    // logoutput(this.fake_personal_data[0],'删除后的数据')
     this.pyq_personal_Page_data = this.fake_personal_data[0]
 
     let res = router.getParams() as data_from_dianzanPage
