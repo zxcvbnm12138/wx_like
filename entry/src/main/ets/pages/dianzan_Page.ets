@@ -35,7 +35,12 @@ struct Dianzan_Page {
             .width(20)
             .fillColor('#000000')
             .onClick(() => {
-              router.back()
+              router.back({
+                url: 'pages/pyq_personal_Page',
+                params:{
+                  new_fake_personal_data: this.fake_person_data
+                }
+              })
             })
           Text('详情')
             .fontSize(18)
@@ -308,7 +313,6 @@ struct Dianzan_Page {
               }
               this.fake_person_data?.comment_content?.unshift(new_comment)
               this.fake_person_data!.comment_num += 1
-              // this.fake_person_data = this.fake_person_data
               this.new_comment_content = ''
             }
           })

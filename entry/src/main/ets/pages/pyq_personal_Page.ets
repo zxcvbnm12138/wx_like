@@ -21,6 +21,10 @@ interface GeneratedTypeLiteralInterface_1 {
   hostname: string;
 }
 
+interface data_from_dianzanPage{
+  new_fake_personal_data: pyq_data
+}
+
 function parseUrl(url: string): GeneratedTypeLiteralInterface_1 {
   const regex = /^(https?:\/\/)?([^\/]+)/;
   const match = url.match(regex);
@@ -594,10 +598,29 @@ struct Pyq_all_Page {
     })
   }
   onPageShow(): void {
-    // this.fake_personal_data = this.fake_personal_data
-    logoutput(this.fake_personal_data[0],'删除后的数据')
+    // logoutput(this.fake_personal_data[0],'删除后的数据')
     this.pyq_personal_Page_data = this.fake_personal_data[0]
-  }
+
+    let res = router.getParams() as data_from_dianzanPage
+
+    if (res !== undefined){
+      logoutput(res.new_fake_personal_data,'new_fake_personal_data')
+      for (let yearData of this.fake_personal_data[0].data.pyq_data) {
+        if (yearData.year == new Date(res.new_fake_personal_data.share_time).getFullYear())
+        {
+          for (let i = 0; i < yearData.pyq_data_list.length; i++) {
+            if (yearData.pyq_data_list[i].share_time === res.new_fake_personal_data.share_time) {
+              logoutput(yearData.pyq_data_list[i],'原数据')
+              yearData.pyq_data_list[i] = res.new_fake_personal_data;
+              logoutput(yearData.pyq_data_list[i],'更新后的数据')
+            }
+          }
+        }
+      }
+      this.pyq_all_Page_data = combineAndSortData(this.fake_personal_data)
+    }
+    logoutput(this.fake_personal_data[0],'new_fake_personal_data更新后的全局数据')
+   }
   build() {
     Stack() {
       Row() {

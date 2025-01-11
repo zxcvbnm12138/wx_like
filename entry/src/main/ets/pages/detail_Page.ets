@@ -89,9 +89,6 @@ struct Detail_Page {
         .onClick(()=>{
           router.pushUrl({
             url:'pages/pyq_personal_Page',
-            params:{
-              result:this.fake_person_data[0]
-            }
           })
         })
 

@@ -2,6 +2,7 @@ import { LengthMetrics, router } from '@kit.ArkUI';
 import { comment_obj, personal_data } from '../utils/dataModel';
 import { Arraysc, image_show } from '../utils/tool';
 
+// 全部人朋友圈页面的数据对象接口
 export interface pyq_all_Page_data {
   wx_number: string;
   avatar: string;
@@ -21,6 +22,8 @@ export interface pyq_all_Page_data {
   share_source?: string
 }
 
+/*从全局fake_person_data中抽取出每项朋友圈数据，组合成全部人朋友圈页面的数据，
+再通过每项朋友圈的share_time值进行降序，最终变成全部人朋友圈页面的数据*/
 export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
   let combinedData: pyq_all_Page_data[] = [];
 
@@ -53,6 +56,7 @@ export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
   return combinedData;
 }
 
+// 随机生成中文姓名
 function getRandomChineseName(): string {
   const firstNames =
     ['赵', '钱', '孙', '李', '周', '吴', '郑', '王', '冯', '陈', '褚', '卫', '蒋', '沈', '韩', '杨', '朱', '秦', '尤',
