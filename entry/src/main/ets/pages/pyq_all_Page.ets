@@ -2,8 +2,7 @@ import { LengthMetrics, MeasureText, router } from '@kit.ArkUI';
 import { comment_obj, personal_data } from '../utils/dataModel';
 import { Arraysc, image_show, logoutput } from '../utils/tool';
 import { hilog } from '@kit.PerformanceAnalysisKit';
-import { it } from '@ohos/hypium';
-import { componentUtils } from '@kit.ArkUI';
+
 // 全部人朋友圈页面的数据对象接口
 export interface pyq_all_Page_data {
   wx_number: string;
@@ -106,8 +105,6 @@ function calculateExtraLines(content: string): number {
 }
 
 
-
-
 // 随机生成中文姓名
 function getRandomChineseName(): string {
   const firstNames =
@@ -124,30 +121,25 @@ function getRandomChineseName(): string {
 }
 
 
-
 @Entry
 @Component
 struct Pyq_all_Page {
-
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') fake_person_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
-
   @State listlocation: boolean = false
   @State maxLinesindex: number = 5
   @State bg_url: string = this.fake_person_data[0].data.bg as string
-  @State textover: string ='全文'
-
+  @State textover: string = '全文'
   listScroller: Scroller = new Scroller();
-
-  textSize : SizeOptions = MeasureText.measureTextSize({
+  textSize: SizeOptions = MeasureText.measureTextSize({
     textContent: "感恩",
     fontSize: vp2px(17)
   });
 
   onPageShow(): void {
     this.bg_url = this.fake_person_data[0].data.bg as string
-    logoutput(this.pyq_all_Page_data,'pyq_all_Page_data')
+    logoutput(this.pyq_all_Page_data, 'pyq_all_Page_data')
   }
 
   build() {
@@ -225,8 +217,7 @@ struct Pyq_all_Page {
                   .border({ width: 0 })
                   .fontColor('#586b95')
                   .fontSize(18)
-                is_expend({item:item,index:index})
-
+                is_expend({ item: item, index: index })
 
 
                 if (item.link && item.link !== '') {
@@ -257,8 +248,7 @@ struct Pyq_all_Page {
                   .alignItems(VerticalAlign.Center)
                   .backgroundColor('#F7F7F7')
                   .margin({ top: 10 })
-                }
-                else {
+                } else {
                   Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
                     ForEach(item.gallery, (pic: string, index) => {
                       Image(image_show(pic))
@@ -393,16 +383,17 @@ struct Pyq_all_Page {
 }
 
 @Component
-struct is_expend{
-  @State textover: string ='全文'
+struct is_expend {
+  @State textover: string = '全文'
   @State maxLinesindex: number = 999
-  @State item:pyq_all_Page_data|undefined = undefined
+  @State item: pyq_all_Page_data | undefined = undefined
   @State content_lines: number = 0
-  index:number=0
+  index: number = 0
   controller: TextController = new TextController()
-  build(){
-    Column(){
-      Text(this.item!.content,{ controller: this.controller })
+
+  build() {
+    Column() {
+      Text(this.item!.content, { controller: this.controller })
         .maxLines(this.maxLinesindex)
         .textOverflow({ overflow: TextOverflow.Clip })
         .border({ width: 0 })
@@ -410,19 +401,19 @@ struct is_expend{
         .fontSize(17)
         .onAppear(() => {
           this.content_lines = this.controller.getLayoutManager().getLineCount()
-          hilog.fatal(0x0001, 'ohos.arkts', 'onAppear'+this.controller.getLayoutManager().getLineCount())
+          hilog.fatal(0x0001, 'ohos.arkts', 'onAppear' + this.controller.getLayoutManager().getLineCount())
         })
-      if ( this.content_lines >5){
+      if (this.content_lines > 5) {
         Text(this.textover)
           .fontColor('#586b95')
-          .onAppear(()=>{
+          .onAppear(() => {
             this.maxLinesindex = 5
           })
-          .onClick(()=>{
-            if (this.maxLinesindex == 5){
+          .onClick(() => {
+            if (this.maxLinesindex == 5) {
               this.maxLinesindex = 999
               this.textover = '收起'
-            }else {
+            } else {
               this.maxLinesindex = 5
               this.textover = '全文'
             }

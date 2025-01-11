@@ -2,7 +2,7 @@ import { Chat_Page } from '../components/chat_Page';
 import { Fx_Page } from '../components/fx_Page';
 import { common } from '@kit.AbilityKit';
 import { fake_all_data, fake_data, personal_data } from '../utils/dataModel';
-import { logoutput, sortPyqData, sortPyqDataList } from '../utils/tool';
+import { sortPyqData, sortPyqDataList } from '../utils/tool';
 import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
 import { Txl_Page } from '../components/txl_Page';
 import { Wo_Page } from '../components/wo_Page';

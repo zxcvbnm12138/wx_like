@@ -1,6 +1,13 @@
 import { CustomContentDialog, router } from '@kit.ArkUI';
-import { formatTime, image_show, ImageUploadLocal, sortPyqData, sortPyqDataList, logoutput,
-  random_sc } from '../utils/tool';
+import {
+  formatTime,
+  image_show,
+  ImageUploadLocal,
+  logoutput,
+  random_sc,
+  sortPyqData,
+  sortPyqDataList
+} from '../utils/tool';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import {
   comment_obj,
@@ -21,7 +28,7 @@ interface GeneratedTypeLiteralInterface_1 {
   hostname: string;
 }
 
-interface data_from_dianzanPage{
+interface data_from_dianzanPage {
   new_fake_personal_data: pyq_data
 }
 
@@ -41,8 +48,7 @@ function parseUrl(url: string): GeneratedTypeLiteralInterface_1 {
 @Entry
 @Component
 struct Pyq_all_Page {
-
-  @State new_comment_list:comment_obj[]=[]
+  @State new_comment_list: comment_obj[] = []
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') fake_personal_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = []
@@ -63,13 +69,11 @@ struct Pyq_all_Page {
   new_comment_num: number = 0
   new_comment_content: comment_obj[] = []
   new_share_time: number = new Date().getTime()
-  new_share_source:string = ''
-
-  @State new_comment_avatar:string = this.fake_personal_data[0].data.avatar
-  @State new_comment_nickname:string = ''
+  new_share_source: string = ''
+  @State new_comment_avatar: string = this.fake_personal_data[0].data.avatar
+  @State new_comment_nickname: string = ''
   @State new_comment_contents: string = ''
   new_comment_share_time: number = new Date().getTime();
-
   @State selectedDate: string = '选择发布时间'
   @State comment_selectedDate: string = '选择发布时间'
   @State selectedDistrict: string = '选择地区'
@@ -85,13 +89,39 @@ struct Pyq_all_Page {
   @State image_url: string = ''
   @State url: string = ''
   @State bg_url: string = this.fake_personal_data[0].data.bg as string
-  private context = getContext(this) as common.UIAbilityContext;
-  private listScroller: Scroller = new Scroller();
-  @Styles
-  TexInput_commonstyles() {
-    .width('100%')
-    .borderRadius(5)
-  }
+  comment_add_dialog: CustomDialogController = new CustomDialogController({
+    builder: CustomContentDialog({
+      contentBuilder: () => {
+        this.comment_add_dialog_builder();
+      },
+      buttons: [
+        {
+          value: '取消',
+          buttonStyle: ButtonStyleMode.NORMAL,
+          action: () => {
+          }
+        },
+        {
+          value: '确定',
+          fontColor: '#000000',
+          buttonStyle: ButtonStyleMode.EMPHASIZED,
+          background: '#00E050',
+          action: () => {
+            if (this.new_comment_list.length !== 0) {
+              this.new_comment_num = this.new_comment_list.length
+              this.new_comment_content = this.new_comment_list
+            }
+            this.new_comment_avatar = this.fake_personal_data[0].data.avatar
+            this.new_comment_nickname = ''
+            this.new_comment_contents = ''
+            this.new_comment_share_time = new Date().getTime();
+            this.new_comment_list = []
+          }
+        }
+      ],
+    }),
+  })
+  @State pyq_personal_Page_data: personal_data = this.fake_personal_data[0]
   dialogController: CustomDialogController = new CustomDialogController({
     builder: CustomContentDialog({
       contentBuilder: () => {
@@ -194,7 +224,7 @@ struct Pyq_all_Page {
               data: this.new_personal_detail_data
             }
             //打印新personal_data的数据
-            logoutput(this.new_person_data,'new_person_data')
+            logoutput(this.new_person_data, 'new_person_data')
             //更新personal_data[0]
             this.fake_personal_data[0] = this.new_person_data
             this.pyq_personal_Page_data = this.new_person_data
@@ -227,41 +257,15 @@ struct Pyq_all_Page {
       ],
     }),
   });
+  private context = getContext(this) as common.UIAbilityContext;
+  private listScroller: Scroller = new Scroller();
 
-  comment_add_dialog:CustomDialogController = new CustomDialogController({
-    builder: CustomContentDialog({
-      contentBuilder: () => {
-        this.comment_add_dialog_builder();
-      },
-      buttons: [
-        {
-          value: '取消',
-          buttonStyle: ButtonStyleMode.NORMAL,
-          action: () => {
-          }
-        },
-        {
-          value: '确定',
-          fontColor: '#000000',
-          buttonStyle: ButtonStyleMode.EMPHASIZED,
-          background: '#00E050',
-          action: () => {
-            if (this.new_comment_list.length !== 0) {
-              this.new_comment_num = this.new_comment_list.length
-              this.new_comment_content = this.new_comment_list
-            }
-            this.new_comment_avatar= this.fake_personal_data[0].data.avatar
-            this.new_comment_nickname= ''
-            this.new_comment_contents= ''
-            this.new_comment_share_time= new Date().getTime();
-            this.new_comment_list = []
-          }
-        }
-      ],
-    }),
-  })
+  @Styles
+  TexInput_commonstyles() {
+    .width('100%')
+    .borderRadius(5)
+  }
 
-  @State pyq_personal_Page_data: personal_data = this.fake_personal_data[0]
   @Builder
   buildContent(): void {
     Scroll() {
@@ -406,7 +410,7 @@ struct Pyq_all_Page {
             .buttonStyle(ButtonStyleMode.NORMAL)
             .borderRadius(5)
             .type(ButtonType.Normal)
-            .onClick(()=>{
+            .onClick(() => {
               this.comment_add_dialog.open()
             })
         }
@@ -418,7 +422,7 @@ struct Pyq_all_Page {
             .TexInput_commonstyles()
             .layoutWeight(1)
             .type(InputType.Number)
-          TextInput({ placeholder: '分享来源（可不填）' , text: $$this.new_share_source})
+          TextInput({ placeholder: '分享来源（可不填）', text: $$this.new_share_source })
             .TexInput_commonstyles()
             .layoutWeight(2)
         }
@@ -436,57 +440,58 @@ struct Pyq_all_Page {
   }
 
   @Builder
-  comment_add_dialog_builder():void{
-    Column({space:5}){
-      Column({space:5}){
-        Row({space:5}){
-            Image(this.commentSrcPixmap)
-              .width(50)
-              .height(50)
-              .objectFit(ImageFit.Cover)
-              .border({width:1})
-              .onClick(async () => {
-                let res = (await ImageUploadLocal(1, this.context.getApplicationContext()))
-                if (res.avater_url !== '') {
-                  this.new_comment_avatar = res.avater_url as string
-                  this.commentSrcPixmap = image_show(this.new_comment_avatar)
-                }
-              })
-            Column({space:5}){
-              TextInput({ placeholder: '昵称', text: $$this.new_comment_nickname})
-                .TexInput_commonstyles()
-              TextArea({ placeholder: '内容', text: $$this.new_comment_contents})
-                .TexInput_commonstyles()
-              Button(this.comment_selectedDate)
-                .buttonStyle(ButtonStyleMode.NORMAL)
-                .type(ButtonType.Normal)
-                .TexInput_commonstyles()
-                .onClick(() => {
-                  this.getUIContext().showDatePickerDialog({
-                    selected: new Date(),
-                    showTime: true,
-                    useMilitaryTime: true,
-                    onDateAccept: (value: Date) => {
-                      this.comment_selectedDate = formatTime(value.getTime(), 0)
-                      this.new_comment_share_time = value.getTime()
-                    }
-                  })
+  comment_add_dialog_builder(): void {
+    Column({ space: 5 }) {
+      Column({ space: 5 }) {
+        Row({ space: 5 }) {
+          Image(this.commentSrcPixmap)
+            .width(50)
+            .height(50)
+            .objectFit(ImageFit.Cover)
+            .border({ width: 1 })
+            .onClick(async () => {
+              let res = (await ImageUploadLocal(1, this.context.getApplicationContext()))
+              if (res.avater_url !== '') {
+                this.new_comment_avatar = res.avater_url as string
+                this.commentSrcPixmap = image_show(this.new_comment_avatar)
+              }
+            })
+          Column({ space: 5 }) {
+            TextInput({ placeholder: '昵称', text: $$this.new_comment_nickname })
+              .TexInput_commonstyles()
+            TextArea({ placeholder: '内容', text: $$this.new_comment_contents })
+              .TexInput_commonstyles()
+            Button(this.comment_selectedDate)
+              .buttonStyle(ButtonStyleMode.NORMAL)
+              .type(ButtonType.Normal)
+              .TexInput_commonstyles()
+              .onClick(() => {
+                this.getUIContext().showDatePickerDialog({
+                  selected: new Date(),
+                  showTime: true,
+                  useMilitaryTime: true,
+                  onDateAccept: (value: Date) => {
+                    this.comment_selectedDate = formatTime(value.getTime(), 0)
+                    this.new_comment_share_time = value.getTime()
+                  }
                 })
-            }
-            .layoutWeight(1)
+              })
+          }
+          .layoutWeight(1)
         }
-        Row({space:10}){
+
+        Row({ space: 10 }) {
           Button('随机生成')
             .type(ButtonType.Normal)
             .buttonStyle(ButtonStyleMode.NORMAL)
             .borderRadius(5)
             .layoutWeight(1)
             .onClick(() => {
-              let random_comment_obj:comment_obj = random_sc(this.fake_personal_data[0].data.avatar)
+              let random_comment_obj: comment_obj = random_sc(this.fake_personal_data[0].data.avatar)
               this.new_comment_avatar = random_comment_obj.comment_avatar
               this.new_comment_nickname = random_comment_obj.comment_nickname
               this.new_comment_contents = random_comment_obj.comment_content
-              this.comment_selectedDate = formatTime(random_comment_obj.comment_time,0)
+              this.comment_selectedDate = formatTime(random_comment_obj.comment_time, 0)
               this.commentSrcPixmap = image_show(this.new_comment_avatar)
 
             })
@@ -495,8 +500,8 @@ struct Pyq_all_Page {
             .buttonStyle(ButtonStyleMode.NORMAL)
             .borderRadius(5)
             .layoutWeight(1)
-            .onClick(()=>{
-              let new_comment :comment_obj = {
+            .onClick(() => {
+              let new_comment: comment_obj = {
                 comment_avatar: this.new_comment_avatar,
                 comment_nickname: this.new_comment_nickname,
                 comment_content: this.new_comment_contents,
@@ -509,22 +514,24 @@ struct Pyq_all_Page {
 
       }
       .width('100%')
-      Column(){
-        if (this.new_comment_list.length!==0){
-          Row(){
+
+      Column() {
+        if (this.new_comment_list.length !== 0) {
+          Row() {
             Text(`共${this.new_comment_list.length}条评论`)
               .fontSize(15)
             Text('一键清空')
               .fontSize(15)
-              .onClick(()=>{
+              .onClick(() => {
                 this.new_comment_list = []
               })
           }
           .width('100%')
           .justifyContent(FlexAlign.SpaceAround)
-          List({space:5}) {
-            ForEach(this.new_comment_list,(item:comment_obj,index)=>{
-              ListItem(){
+
+          List({ space: 5 }) {
+            ForEach(this.new_comment_list, (item: comment_obj, index) => {
+              ListItem() {
                 Row({ space: 5 }) {
                   Image(image_show(item.comment_avatar))
                     .width(27)
@@ -535,12 +542,13 @@ struct Pyq_all_Page {
                       Text(item.comment_nickname)
                         .fontSize(11)
                         .fontColor('#586b95')
-                      Text(formatTime(item.comment_time,0))
+                      Text(formatTime(item.comment_time, 0))
                         .fontSize(11)
                         .fontColor('#BEBEBE')
                     }
                     .width('100%')
                     .justifyContent(FlexAlign.SpaceBetween)
+
                     Row() {
                       Text(item.comment_content)
                         .fontSize(14)
@@ -555,13 +563,13 @@ struct Pyq_all_Page {
               }
               .borderRadius(5)
               .padding(5)
-              .border({width:1})
+              .border({ width: 1 })
             })
           }
           .width('100%')
           .scrollBar(BarState.Off)
           .padding(5)
-        }else {
+        } else {
           Text('还没添加评论哦~')
             .fontSize(17)
         }
@@ -597,30 +605,31 @@ struct Pyq_all_Page {
       customStyle: true,
     })
   }
+
   onPageShow(): void {
     // logoutput(this.fake_personal_data[0],'删除后的数据')
     this.pyq_personal_Page_data = this.fake_personal_data[0]
 
     let res = router.getParams() as data_from_dianzanPage
 
-    if (res !== undefined){
-      logoutput(res.new_fake_personal_data,'new_fake_personal_data')
+    if (res !== undefined) {
+      logoutput(res.new_fake_personal_data, 'new_fake_personal_data')
       for (let yearData of this.fake_personal_data[0].data.pyq_data) {
-        if (yearData.year == new Date(res.new_fake_personal_data.share_time).getFullYear())
-        {
+        if (yearData.year == new Date(res.new_fake_personal_data.share_time).getFullYear()) {
           for (let i = 0; i < yearData.pyq_data_list.length; i++) {
             if (yearData.pyq_data_list[i].share_time === res.new_fake_personal_data.share_time) {
-              logoutput(yearData.pyq_data_list[i],'原数据')
+              logoutput(yearData.pyq_data_list[i], '原数据')
               yearData.pyq_data_list[i] = res.new_fake_personal_data;
-              logoutput(yearData.pyq_data_list[i],'更新后的数据')
+              logoutput(yearData.pyq_data_list[i], '更新后的数据')
             }
           }
         }
       }
       this.pyq_all_Page_data = combineAndSortData(this.fake_personal_data)
     }
-    logoutput(this.fake_personal_data[0],'new_fake_personal_data更新后的全局数据')
-   }
+    logoutput(this.fake_personal_data[0], 'new_fake_personal_data更新后的全局数据')
+  }
+
   build() {
     Stack() {
       Row() {
@@ -779,8 +788,7 @@ struct Pyq_all_Page {
                       }
                     })
                   })
-                }
-                else {
+                } else {
                   Row() {
                     Pyq_Layout({
                       picture_num: item.gallery.length,
