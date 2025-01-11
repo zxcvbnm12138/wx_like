@@ -1,4 +1,4 @@
-import { LengthMetrics, MeasureText, router } from '@kit.ArkUI';
+import { componentUtils, LengthMetrics, MeasureText, router } from '@kit.ArkUI';
 import { comment_obj, personal_data } from '../utils/dataModel';
 import { Arraysc, image_show, logoutput } from '../utils/tool';
 import { hilog } from '@kit.PerformanceAnalysisKit';
@@ -134,15 +134,18 @@ function generateRandomNames(love_num: number): string[] {
 @Entry
 @Component
 struct Pyq_all_Page {
-  // @State isFocus: boolean =t ;
+  @State new_comment_content: string='';
+
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') fake_person_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
   @State listlocation: boolean = false
   @State bg_url: string = this.fake_person_data[0].data.bg as string
   listScroller: Scroller = new Scroller();
-
+  Textcontroller: TextAreaController = new TextAreaController()
   @Provide comment_square_show:number = -1
+  @Provide new_comment_index:number = 0
+
   onPageShow(): void {
     this.bg_url = this.fake_person_data[0].data.bg as string
     logoutput(this.pyq_all_Page_data, 'pyq_all_Page_data')
@@ -206,211 +209,7 @@ struct Pyq_all_Page {
 
         ForEach(this.pyq_all_Page_data, (item: pyq_all_Page_data, index) => {
           ListItem() {
-            // Row({ space: 5 }) {
-            //   Column() {
-            //     Image(image_show(item.avatar))
-            //       .width(50)
-            //       .height(50)
-            //       .objectFit(ImageFit.Cover)
-            //       .borderRadius(8)
-            //   }
-            //
-            //   Column() {
-            //     Text(item.nickname)
-            //       .border({ width: 0 })
-            //       .fontColor('#586b95')
-            //       .fontSize(18)
-            //     is_expend({ item: item, index: index })
-            //
-            //
-            //     if (item.link && item.link !== '') {
-            //       Row() {
-            //         Row() {
-            //           Image(item.link_image_url)
-            //             .width(30)
-            //             .height(30)
-            //             .objectFit(ImageFit.Cover)
-            //             .border({ width: 0 })
-            //         }
-            //         .justifyContent(FlexAlign.Center)
-            //         .alignItems(VerticalAlign.Center)
-            //         .width(40)
-            //         .height(40)
-            //         .border({ width: 0 })
-            //
-            //         Text(item.link)
-            //           .fontSize(18)
-            //           .maxLines(2)
-            //           .textOverflow({ overflow: TextOverflow.Ellipsis })
-            //           .layoutWeight(1)
-            //           .textAlign(TextAlign.Start)
-            //           .border({ width: 0 })
-            //       }
-            //       .border({ width: 0 })
-            //       .padding(5)
-            //       .alignItems(VerticalAlign.Center)
-            //       .backgroundColor('#F7F7F7')
-            //       .margin({ top: 10 })
-            //     } else {
-            //       Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
-            //         ForEach(item.gallery, (pic: string, index) => {
-            //           Image(image_show(pic))
-            //             .objectFit(ImageFit.Cover)
-            //             .width(93)
-            //             .height(93)
-            //         })
-            //       }
-            //       .width('100%')
-            //       .margin({ top: 10 })
-            //     }
-            //
-            //     Text(item.location).border({ width: 0 }).fontColor('#586b95').fontSize(14)
-            //       .margin({ top: 5 })
-            //
-            //     Row() {
-            //       Row({ space: 5 }) {
-            //         Text(item.show_time).fontColor('#BEBEBE').fontSize(12)
-            //         if (item.share_source && item.share_source !== '') {
-            //           Text(item.share_source).fontColor('#BEBEBE').fontSize(12)
-            //         }
-            //         if (item.wx_number == this.fake_person_data[0].wx_number) {
-            //           Image($r('app.media.del'))
-            //             .width(16)
-            //             .height(16)
-            //             .onClick(() => {
-            //               // 假设 index 是要删除的元素的索引
-            //               let deletedElement = this.pyq_all_Page_data.splice(index, 1)[0];
-            //               let shareTimeToDelete = deletedElement.share_time;
-            //               let wxNumberToDelete = deletedElement.wx_number;
-            //               let yearToDelete = new Date(shareTimeToDelete).getFullYear();
-            //               // 遍历 personal_data 数组，找到并删除对应的 pyq_data 元素
-            //               this.fake_person_data.forEach(person => {
-            //                 if (person.wx_number === wxNumberToDelete) {
-            //                   person.data.pyq_data.forEach(yearData => {
-            //                     if (yearData.year === yearToDelete) {
-            //                       yearData.pyq_data_list = yearData.pyq_data_list.filter(pyqItem => {
-            //                         return pyqItem.share_time !== shareTimeToDelete;
-            //                       })
-            //                     }
-            //                   })
-            //                 }
-            //               });
-            //
-            //             })
-            //         }
-            //       }
-            //
-            //       Stack(){
-            //         Row(){
-            //           Row({space:5}){
-            //             Image($r('app.media.love'))
-            //               .width(20)
-            //               .fillColor('#FCFCFC')
-            //             Text('赞')
-            //               .fontColor('#FCFCFC')
-            //               .fontSize(20)
-            //           }
-            //           .justifyContent(FlexAlign.Center)
-            //           .alignItems(VerticalAlign.Center)
-            //           .layoutWeight(1)
-            //
-            //           Row(){}
-            //           .width(1)
-            //           .height('70%')
-            //           .border({ width: 0.7,color:'#FCFCFC'})
-            //
-            //           Row({space:5}){
-            //             Image($r('app.media.bubble'))
-            //               .fillColor('#FCFCFC')
-            //               .width(20)
-            //             Text('评论')
-            //               .fontColor('#FCFCFC')
-            //               .fontSize(20)
-            //           }
-            //           .justifyContent(FlexAlign.Center)
-            //           .alignItems(VerticalAlign.Center)
-            //           .layoutWeight(1)
-            //         }
-            //         .height(43)
-            //         .backgroundColor('#4C4C4C')
-            //         .borderRadius(5)
-            //         .width(200)
-            //         .visibility(this.isShow)
-            //         .animation({
-            //           duration: 200,
-            //         })
-            //         .zIndex(1)
-            //         Image($r('app.media.ICO28_more')).width(30)
-            //           .height(23)
-            //           .backgroundColor('#F7F7F7').borderRadius(5)
-            //           .onClick(() => {
-            //             if (this.isShow == Visibility.Visible) {
-            //               this.isShow = Visibility.None
-            //             }else {
-            //               this.isShow = Visibility.Visible
-            //             }
-            //           })
-            //       }
-            //       .alignContent(Alignment.End)
-            //       .layoutWeight(1)
-            //
-            //     }.border({ width: 0 })
-            //     .width('100%')
-            //     .justifyContent(FlexAlign.SpaceBetween)
-            //
-            //     List({ space: 0 }) {
-            //       if (item.love_num !== 0) {
-            //         ListItem() {
-            //           Row() {
-            //             Text() {
-            //               Span('♡ ')
-            //               ForEach(Arraysc(item.love_num), (num: number, index) => {
-            //                 Span(getRandomChineseName())
-            //                 if (Arraysc(item.love_num).length !== index + 1) {
-            //                   Span(', ')
-            //                 }
-            //               })
-            //             }
-            //             .fontSize(14)
-            //             .width('100%')
-            //             .fontColor('#586b95')
-            //             .borderRadius(0)
-            //           }
-            //           .alignItems(VerticalAlign.Top)
-            //         }.padding(5)
-            //       }
-            //       if (item.comment_num !== 0) {
-            //         ListItem() {
-            //           Column({ space: 5 }) {
-            //             ForEach(item.comment_content, (comment_item: comment_obj, index) => {
-            //               Text() {
-            //                 Span(comment_item.comment_nickname + ': ')
-            //                   .fontColor('#586b95')
-            //                 Span(comment_item.comment_content)
-            //               }
-            //               .fontSize(14)
-            //               .lineHeight(18)
-            //               .width('100%')
-            //             })
-            //           }
-            //         }.padding(5)
-            //       }
-            //     }
-            //     .backgroundColor('#F7F7F7')
-            //     .width('100%')
-            //     .margin({ top: 5 })
-            //     .borderRadius(5)
-            //     .divider({ strokeWidth: 0.3, color: '#ffc4c3c3' })
-            //
-            //   }
-            //   .padding({ top: 2 })
-            //   .layoutWeight(1)
-            //   .width('100%')
-            //   .alignItems(HorizontalAlign.Start)
-            // }
-            // .width('100%')
-            // .alignItems(VerticalAlign.Top)
-            show_data({item:item,index:index})
+            show_data({item:item,index:index,listScroller: this.listScroller})
           }
           .margin({ top: 32 })
           .padding({ right: 10, left: 10, bottom: 10 })
@@ -428,11 +227,12 @@ struct Pyq_all_Page {
         let location = this.listScroller.currentOffset().yOffset
         this.listlocation = location >= 168
       })
+      .expandSafeArea([SafeAreaType.KEYBOARD])
       .zIndex(2)
 
 
       Row({ space: 10 }) {
-        TextArea({ placeholder: '评论', })
+        TextArea({ controller:this.Textcontroller,placeholder: '评论',text:$$this.new_comment_content })
           .placeholderColor('##B2B2B2')
           .backgroundColor('#ffffff')
           .layoutWeight(1)
@@ -442,7 +242,8 @@ struct Pyq_all_Page {
           .heightAdaptivePolicy(TextHeightAdaptivePolicy.LAYOUT_CONSTRAINT_FIRST)
           .defaultFocus(false)
           .enableKeyboardOnFocus(true)
-          .id('1')
+          .id('textArea')
+          .enterKeyType(EnterKeyType.NEW_LINE)
         Image($r('app.media.smile'))
           .width(28)
           .height(28)
@@ -454,18 +255,21 @@ struct Pyq_all_Page {
           .width(65)
           .onClick(() => {
             this.comment_square_show = -1
-            // if (this.new_comment_content !== '') {
-            //
-            //   let new_comment :comment_obj = {
-            //     comment_avatar: this.personal_data[0].data.avatar,
-            //     comment_nickname: this.personal_data[0].data.nickname,
-            //     comment_content: this.new_comment_content,
-            //     comment_time: new Date().getTime()
-            //   }
-            //   this.fake_person_data?.comment_content?.unshift(new_comment)
-            //   this.fake_person_data!.comment_num += 1
-            //   this.new_comment_content = ''
-            // }
+            if (this.new_comment_content !== '') {
+
+              let new_comment :comment_obj = {
+                comment_avatar: this.fake_person_data[0].data.avatar,
+                comment_nickname: this.fake_person_data[0].data.nickname,
+                comment_content: this.new_comment_content,
+                comment_time: new Date().getTime()
+              }
+              this.pyq_all_Page_data[this.new_comment_index].comment_content.unshift(new_comment)
+              this.pyq_all_Page_data[this.new_comment_index].comment_num += 1
+              this.new_comment_content = ''
+              this.Textcontroller.stopEditing()
+              // logoutput(this.pyq_all_Page_data,'@Provide new_comment_index:number')
+              this.pyq_all_Page_data = [...this.pyq_all_Page_data]
+            }
           })
       }
       .width('100%')
@@ -474,13 +278,9 @@ struct Pyq_all_Page {
       .alignItems(VerticalAlign.Center)
       .justifyContent(FlexAlign.Center)
       .zIndex(this.comment_square_show)
-      .margin({top: '100%'})
+      .position({bottom:0})
       .width('100%')
       .height(55)
-
-
-      // .visibility(this.comment_square_show?Visibility.Visible:Visibility.None)
-
 
     }
     .width('100%')
@@ -535,13 +335,19 @@ struct is_expend {
 
 @Component
 struct show_data{
-  @State item: pyq_all_Page_data | undefined = undefined
+
   @State isShow: Visibility = Visibility.Hidden;
   @StorageLink('fake_person_data') fake_person_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
   @State is_like:boolean = false
   @Consume comment_square_show:number
-  index: number = 0
+  @Consume new_comment_index:number
+
+  @State item: pyq_all_Page_data | undefined = undefined
+  @State index: number = 0
+  listScroller: Scroller|undefined = undefined
+
+
   build() {
     Row({ space: 5 }) {
       Column() {
@@ -601,7 +407,9 @@ struct show_data{
           .margin({ top: 10 })
         }
 
-        Text(this.item!.location).border({ width: 0 }).fontColor('#586b95').fontSize(14)
+        Text(this.item!.location)
+          .fontColor('#586b95')
+          .fontSize(14)
           .margin({ top: 5 })
 
         Row() {
@@ -685,10 +493,14 @@ struct show_data{
               .layoutWeight(1)
               .onClick(() => {
                 this.comment_square_show = 3
-                this.getUIContext().getFocusController().requestFocus('1')
+                this.getUIContext().getFocusController().requestFocus('textArea')
                 setTimeout(() => {
                   this.isShow = Visibility.None
                 }, 300);
+                let current_location = componentUtils.getRectangleById(this.index.toString()).screenOffset.y
+                this.listScroller?.scrollBy( 0, px2vp(current_location - 1467) )
+                this.new_comment_index = this.index
+
               })
             }
             .height(35)
@@ -711,6 +523,7 @@ struct show_data{
                   this.isShow = Visibility.Visible
                 }
               })
+              .id(this.index.toString())
           }
           .alignContent(Alignment.End)
           .layoutWeight(1)

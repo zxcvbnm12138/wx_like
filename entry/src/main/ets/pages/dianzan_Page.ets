@@ -1,4 +1,4 @@
-import { LengthMetrics, router } from '@kit.ArkUI';
+import { BottomOffset, LengthMetrics, router } from '@kit.ArkUI';
 import { Arraysc, formatTime, image_show } from '../utils/tool';
 import { comment_obj, convertTime, personal_data, pyq_data } from '../utils/dataModel';
 import { hilog } from '@kit.PerformanceAnalysisKit';
@@ -17,6 +17,7 @@ struct Dianzan_Page {
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
   @State love_sum: number[] = []
   @State fake_person_data: pyq_data | undefined = undefined
+  listScroller: Scroller = new Scroller();
 
   aboutToAppear(): void {
 
@@ -55,7 +56,7 @@ struct Dianzan_Page {
       .height(px2vp(this.topRectHeight) + 54)
       .padding({ top: px2vp(this.topRectHeight), left: 10, right: 10 })
 
-      List() {
+      List({scroller:this.listScroller}) {
         ListItem() {
           Column() {
             Row({ space: 5 }) {
@@ -290,6 +291,9 @@ struct Dianzan_Page {
           .caretColor('#00E050')
           .barState(BarState.Off)
           .heightAdaptivePolicy(TextHeightAdaptivePolicy.LAYOUT_CONSTRAINT_FIRST)
+          .onFocus(() => {
+            this.listScroller.scrollEdge(Edge.Bottom)
+          })
         Image($r('app.media.smile'))
           .width(28)
           .height(28)
