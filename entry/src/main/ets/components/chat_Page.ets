@@ -1,3 +1,7 @@
+/*
+ * 聊天 的UI组件
+ */
+
 @Component
 export struct Chat_Page {
   @StorageProp('topRectHeight') topRectHeight: number = 0;
