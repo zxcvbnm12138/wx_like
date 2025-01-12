@@ -1,6 +1,6 @@
 import { componentUtils, LengthMetrics, MeasureText, router } from '@kit.ArkUI';
 import { comment_obj, personal_data } from '../utils/dataModel';
-import { Arraysc, image_show, logoutput } from '../utils/tool';
+import { image_show } from '../utils/tool';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 // 全部人朋友圈页面的数据对象接口
@@ -22,7 +22,7 @@ export interface pyq_all_Page_data {
   link_image_url?: string;
   share_source?: string;
   content_lines: number
-  like_user:string[]
+  like_user: string[]
 }
 
 /*从全局fake_person_data中抽取出每项朋友圈数据，组合成全部人朋友圈页面的数据，
@@ -121,6 +121,7 @@ function getRandomChineseName(): string {
 
   return firstName + lastName;
 }
+
 // 根据点赞个数生成对应数量的随机中文名字数组
 function generateRandomNames(love_num: number): string[] {
   const names: string[] = [];
@@ -134,8 +135,7 @@ function generateRandomNames(love_num: number): string[] {
 @Entry
 @Component
 struct Pyq_all_Page {
-  @State new_comment_content: string='';
-
+  @State new_comment_content: string = '';
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') fake_person_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
@@ -143,12 +143,12 @@ struct Pyq_all_Page {
   @State bg_url: string = this.fake_person_data[0].data.bg as string
   listScroller: Scroller = new Scroller();
   Textcontroller: TextAreaController = new TextAreaController()
-  @Provide comment_square_show:number = -1
-  @Provide new_comment_index:number = 0
+  @Provide comment_square_show: number = -1
+  @Provide new_comment_index: number = 0
 
   onPageShow(): void {
     this.bg_url = this.fake_person_data[0].data.bg as string
-    logoutput(this.pyq_all_Page_data, 'pyq_all_Page_data')
+    // logoutput(this.pyq_all_Page_data, 'pyq_all_Page_data')
   }
 
   build() {
@@ -209,7 +209,7 @@ struct Pyq_all_Page {
 
         ForEach(this.pyq_all_Page_data, (item: pyq_all_Page_data, index) => {
           ListItem() {
-            show_data({item:item,index:index,listScroller: this.listScroller})
+            show_data({ item: item, index: index, listScroller: this.listScroller })
           }
           .margin({ top: 32 })
           .padding({ right: 10, left: 10, bottom: 10 })
@@ -232,7 +232,7 @@ struct Pyq_all_Page {
 
 
       Row({ space: 10 }) {
-        TextArea({ controller:this.Textcontroller,placeholder: '评论',text:$$this.new_comment_content })
+        TextArea({ controller: this.Textcontroller, placeholder: '评论', text: $$this.new_comment_content })
           .placeholderColor('##B2B2B2')
           .backgroundColor('#ffffff')
           .layoutWeight(1)
@@ -257,7 +257,7 @@ struct Pyq_all_Page {
             this.comment_square_show = -1
             if (this.new_comment_content !== '') {
 
-              let new_comment :comment_obj = {
+              let new_comment: comment_obj = {
                 comment_avatar: this.fake_person_data[0].data.avatar,
                 comment_nickname: this.fake_person_data[0].data.nickname,
                 comment_content: this.new_comment_content,
@@ -277,7 +277,7 @@ struct Pyq_all_Page {
                   person.data.pyq_data.forEach(yearData => {
                     if (yearData.year === yearToadd) {
                       yearData.pyq_data_list.forEach(pyqItem => {
-                        if (pyqItem.share_time === shareTimeToadd){
+                        if (pyqItem.share_time === shareTimeToadd) {
                           pyqItem.comment_num += 1
                           pyqItem.comment_content?.unshift(new_comment)
                         }
@@ -288,9 +288,10 @@ struct Pyq_all_Page {
               });
               this.pyq_all_Page_data = combineAndSortData(this.fake_person_data)
               this.new_comment_content = ''
-              this.Textcontroller.stopEditing()
+
 
             }
+            this.Textcontroller.stopEditing()
           })
       }
       .width('100%')
@@ -299,11 +300,15 @@ struct Pyq_all_Page {
       .alignItems(VerticalAlign.Center)
       .justifyContent(FlexAlign.Center)
       .zIndex(this.comment_square_show)
-      .position({bottom:0})
+      .position({ bottom: 0 })
       .width('100%')
       .height(55)
 
     }
+    .onClick(() => {
+      this.Textcontroller.stopEditing()
+      this.comment_square_show = -1
+    })
     .width('100%')
     .height('100%')
     .alignContent(Alignment.Top)
@@ -355,19 +360,16 @@ struct is_expend {
 }
 
 @Component
-struct show_data{
-
+struct show_data {
   @State isShow: Visibility = Visibility.Hidden;
   @StorageLink('fake_person_data') fake_person_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
-  @State is_like:boolean = false
-  @Consume comment_square_show:number
-  @Consume new_comment_index:number
-
+  @State is_like: boolean = false
+  @Consume comment_square_show: number
+  @Consume new_comment_index: number
   @State item: pyq_all_Page_data | undefined = undefined
   @State index: number = 0
-  listScroller: Scroller|undefined = undefined
-
+  listScroller: Scroller | undefined = undefined
 
   build() {
     Row({ space: 5 }) {
@@ -466,12 +468,12 @@ struct show_data{
             }
           }
 
-          Stack(){
-            Row(){
-              Row({space:5}){
-                Image($r(this.is_like ? 'app.media.bubble' : 'app.media.love'))
+          Stack() {
+            Row() {
+              Row({ space: 5 }) {
+                Image($r(this.is_like ? 'app.media.red_like' : 'app.media.love'))
                   .width(16)
-                  .fillColor('#FCFCFC')
+                  .fillColor(this.is_like ? Color.Red :'#FCFCFC')
                 Text('赞')
                   .fontColor('#FCFCFC')
                   .fontSize(16)
@@ -480,7 +482,7 @@ struct show_data{
               .alignItems(VerticalAlign.Center)
               .layoutWeight(1)
               .onClick(() => {
-                let like_name:string = this.fake_person_data[0].data.nickname
+                let like_name: string = this.fake_person_data[0].data.nickname
                 if (this.is_like) {
                   this.item!.love_num -= 1
                   this.is_like = !this.is_like
@@ -494,7 +496,7 @@ struct show_data{
                       person.data.pyq_data.forEach(yearData => {
                         if (yearData.year === yearToadd) {
                           yearData.pyq_data_list.forEach(pyqItem => {
-                            if (pyqItem.share_time === shareTimeToadd){
+                            if (pyqItem.share_time === shareTimeToadd) {
                               pyqItem.love_num -= 1
                             }
                           })
@@ -502,7 +504,7 @@ struct show_data{
                       })
                     }
                   });
-                }else{
+                } else {
                   this.item!.love_num += 1
                   this.is_like = !this.is_like
                   this.item?.like_user.unshift(like_name)
@@ -515,7 +517,7 @@ struct show_data{
                       person.data.pyq_data.forEach(yearData => {
                         if (yearData.year === yearToadd) {
                           yearData.pyq_data_list.forEach(pyqItem => {
-                            if (pyqItem.share_time === shareTimeToadd){
+                            if (pyqItem.share_time === shareTimeToadd) {
                               pyqItem.love_num += 1
                             }
                           })
@@ -530,12 +532,13 @@ struct show_data{
 
               })
 
-              Row(){}
+              Row() {
+              }
               .width(1)
               .height('70%')
-              .border({ width: 0.7,color:'#FCFCFC'})
+              .border({ width: 0.7, color: '#FCFCFC' })
 
-              Row({space:5}){
+              Row({ space: 5 }) {
                 Image($r('app.media.bubble'))
                   .fillColor('#FCFCFC')
                   .width(16)
@@ -553,7 +556,7 @@ struct show_data{
                   this.isShow = Visibility.None
                 }, 300);
                 let current_location = componentUtils.getRectangleById(this.index.toString()).screenOffset.y
-                this.listScroller?.scrollBy( 0, px2vp(current_location - 1467) )
+                this.listScroller?.scrollBy(0, px2vp(current_location - 1467))
                 this.new_comment_index = this.index
 
               })
@@ -567,14 +570,17 @@ struct show_data{
               duration: 200,
             })
             .zIndex(1)
-            .margin({right:32})
-            Image($r('app.media.ICO28_more')).width(30)
+            .margin({ right: 32 })
+
+            Image($r('app.media.ICO28_more'))
+              .width(30)
               .height(23)
-              .backgroundColor('#F7F7F7').borderRadius(5)
+              .backgroundColor('#F7F7F7')
+              .borderRadius(5)
               .onClick(() => {
                 if (this.isShow == Visibility.Visible) {
                   this.isShow = Visibility.None
-                }else {
+                } else {
                   this.isShow = Visibility.Visible
                 }
               })

@@ -1,6 +1,6 @@
-import { BottomOffset, LengthMetrics, router } from '@kit.ArkUI';
+import { LengthMetrics, router } from '@kit.ArkUI';
 import { Arraysc, formatTime, image_show } from '../utils/tool';
-import { comment_obj, convertTime, personal_data, pyq_data } from '../utils/dataModel';
+import { comment_obj, personal_data, pyq_data } from '../utils/dataModel';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
 
@@ -11,13 +11,15 @@ interface result {
 @Entry
 @Component
 struct Dianzan_Page {
-  @State new_comment_content: string ='';
+  @State new_comment_content: string = '';
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') personal_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
   @State love_sum: number[] = []
   @State fake_person_data: pyq_data | undefined = undefined
   listScroller: Scroller = new Scroller();
+  @State isShow: Visibility = Visibility.Hidden;
+  @State is_like: boolean = false
 
   aboutToAppear(): void {
 
@@ -37,7 +39,7 @@ struct Dianzan_Page {
           .onClick(() => {
             router.back({
               url: 'pages/pyq_personal_Page',
-              params:{
+              params: {
                 new_fake_personal_data: this.fake_person_data
               }
             })
@@ -56,7 +58,7 @@ struct Dianzan_Page {
       .height(px2vp(this.topRectHeight) + 54)
       .padding({ top: px2vp(this.topRectHeight), left: 10, right: 10 })
 
-      List({scroller:this.listScroller}) {
+      List({ scroller: this.listScroller }) {
         ListItem() {
           Column() {
             Row({ space: 5 }) {
@@ -113,12 +115,12 @@ struct Dianzan_Page {
                   }
                   .padding(5)
                   .alignItems(VerticalAlign.Center)
-                  .margin({ left: 10 , bottom: 10 })
+                  .margin({ left: 10, bottom: 10 })
                   .backgroundColor('#F7F7F7')
                   .width('100%')
                   .height(50)
                   .border({ width: 0 })
-                }else {
+                } else {
                   Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
                     ForEach(this.fake_person_data?.gallery, (item: string, index) => {
                       Image(image_show(item))
@@ -143,8 +145,7 @@ struct Dianzan_Page {
                     Text(this.fake_person_data?.show_time)
                       .fontColor('#BEBEBE')
                       .fontSize(12)
-                    if(this.fake_person_data?.share_source && this.fake_person_data.share_source !== '')
-                    {
+                    if (this.fake_person_data?.share_source && this.fake_person_data.share_source !== '') {
                       Text(this.fake_person_data.share_source).fontColor('#BEBEBE').fontSize(12)
                     }
                     Image($r('app.media.del'))
@@ -174,12 +175,88 @@ struct Dianzan_Page {
                       })
                   }
 
-                  Image($r('app.media.ICO28_more'))
-                    .width(30)
-                    .height(23)
-                    .backgroundColor('#F7F7F7')
+                  Stack() {
+                    Row() {
+                      Row({ space: 5 }) {
+                        Image($r(this.is_like ? 'app.media.red_like' : 'app.media.love'))
+                          .width(16)
+                          .fillColor(this.is_like ? Color.Red:'#FCFCFC')
+                        Text('赞')
+                          .fontColor('#FCFCFC')
+                          .fontSize(16)
+                      }
+                      .justifyContent(FlexAlign.Center)
+                      .alignItems(VerticalAlign.Center)
+                      .layoutWeight(1)
+                      .onClick(() => {
+                        if (this.is_like) {
+                          this.is_like = !this.is_like
+                          this.fake_person_data!.love_num -= 1
+                          this.love_sum.shift()
+                        } else {
+                          this.is_like = !this.is_like
+                          this.fake_person_data!.love_num += 1
+                          this.love_sum.unshift(1)
+                        }
+
+                        setTimeout(() => {
+                          this.isShow = Visibility.None
+                        }, 300);
+                      })
+
+                      Row() {
+                      }
+                      .width(1)
+                      .height('70%')
+                      .border({ width: 0.7, color: '#FCFCFC' })
+
+                      Row({ space: 5 }) {
+                        Image($r('app.media.bubble'))
+                          .fillColor('#FCFCFC')
+                          .width(16)
+                        Text('评论')
+                          .fontColor('#FCFCFC')
+                          .fontSize(16)
+                      }
+                      .justifyContent(FlexAlign.Center)
+                      .alignItems(VerticalAlign.Center)
+                      .layoutWeight(1)
+                      .onClick(() => {
+                        this.getUIContext().getFocusController().requestFocus('dianzan_Page_textArea')
+                        setTimeout(() => {
+                          this.isShow = Visibility.None
+                        }, 300);
+                      })
+                    }
+                    .height(35)
+                    .backgroundColor('#4C4C4C')
                     .borderRadius(5)
+                    .width(180)
+                    .visibility(this.isShow)
+                    .animation({
+                      duration: 200,
+                    })
+                    .zIndex(1)
+                    .margin({ right: 32 })
+
+                    Image($r('app.media.ICO28_more'))
+                      .width(30)
+                      .height(23)
+                      .backgroundColor('#F7F7F7')
+                      .borderRadius(5)
+                      .onClick(() => {
+                        if (this.isShow == Visibility.Visible) {
+                          this.isShow = Visibility.None
+                        } else {
+                          this.isShow = Visibility.Visible
+                        }
+                      })
+                    // .id(this.index.toString())
+                  }
+                  .alignContent(Alignment.End)
+                  .layoutWeight(1)
                 }
+                .height(25)
                 .width('100%')
                 .justifyContent(FlexAlign.SpaceBetween)
 
@@ -193,8 +270,7 @@ struct Dianzan_Page {
 
             Row() {
               Column({ space: 1 }) {
-                if(this.fake_person_data!.love_num !==0)
-                {
+                if (this.fake_person_data!.love_num !== 0) {
                   Row({ space: 8 }) {
                     Image($r('app.media.love'))
                       .width(18)
@@ -216,13 +292,13 @@ struct Dianzan_Page {
                   .borderRadius(5)
                   .alignItems(VerticalAlign.Top)
                 }
-                if (this.fake_person_data?.comment_num !== 0 ){
+                if (this.fake_person_data?.comment_num !== 0) {
                   Row({ space: 8 }) {
                     Image($r('app.media.bubble'))
                       .width(18)
                       .fillColor('#586b95')
                       .margin({ top: 5 })
-                    Column({space:10}) {
+                    Column({ space: 10 }) {
                       ForEach(this.fake_person_data?.comment_content, (item: comment_obj, index) => {
                         Row({ space: 5 }) {
                           Image(image_show(item.comment_avatar))
@@ -234,12 +310,13 @@ struct Dianzan_Page {
                               Text(item.comment_nickname)
                                 .fontSize(11)
                                 .fontColor('#586b95')
-                              Text(formatTime(item.comment_time,0))
+                              Text(formatTime(item.comment_time, 0))
                                 .fontSize(11)
                                 .fontColor('#BEBEBE')
                             }
                             .width('100%')
                             .justifyContent(FlexAlign.SpaceBetween)
+
                             Row() {
                               Text(item.comment_content)
                                 .fontSize(14)
@@ -281,9 +358,9 @@ struct Dianzan_Page {
       .layoutWeight(1)
       .backgroundColor('#ffffff')
       .scrollBar(BarState.Off)
-      // .padding({bottom:54})
+
       Row({ space: 10 }) {
-        TextArea({ placeholder: '评论', text: $$this.new_comment_content})
+        TextArea({ placeholder: '评论', text: $$this.new_comment_content })
           .placeholderColor('##B2B2B2')
           .backgroundColor('#ffffff')
           .layoutWeight(1)
@@ -291,6 +368,9 @@ struct Dianzan_Page {
           .caretColor('#00E050')
           .barState(BarState.Off)
           .heightAdaptivePolicy(TextHeightAdaptivePolicy.LAYOUT_CONSTRAINT_FIRST)
+          .defaultFocus(false)
+          .enableKeyboardOnFocus(true)
+          .id('dianzan_Page_textArea')
           .onFocus(() => {
             this.listScroller.scrollEdge(Edge.Bottom)
           })
@@ -306,7 +386,7 @@ struct Dianzan_Page {
           .onClick(() => {
             if (this.new_comment_content !== '') {
 
-              let new_comment :comment_obj = {
+              let new_comment: comment_obj = {
                 comment_avatar: this.personal_data[0].data.avatar,
                 comment_nickname: this.personal_data[0].data.nickname,
                 comment_content: this.new_comment_content,
@@ -323,12 +403,10 @@ struct Dianzan_Page {
       .padding(10)
       .alignItems(VerticalAlign.Center)
       .justifyContent(FlexAlign.Center)
-      // .zIndex(2)
     }
     .width('100%')
     .height('100%')
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
-
 
   }
 }

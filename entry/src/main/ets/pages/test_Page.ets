@@ -1,10 +1,7 @@
-
-
 @Entry
 @Component
 struct Dianzan_Page {
-
-  @State isShow:Visibility = Visibility.None
+  @State isShow: Visibility = Visibility.None
 
   build() {
     Column() {
@@ -12,10 +9,11 @@ struct Dianzan_Page {
         Row() {
           Text('1天前').fontColor('#BEBEBE').fontSize(12)
         }
-        .border({width:1})
-        Row({space:3}){
-          Row(){
-            Row({space:5}){
+        .border({ width: 1 })
+
+        Row({ space: 3 }) {
+          Row() {
+            Row({ space: 5 }) {
               Image($r('app.media.love'))
                 .width(20)
                 .fillColor('#FCFCFC')
@@ -27,12 +25,13 @@ struct Dianzan_Page {
             .alignItems(VerticalAlign.Center)
             .layoutWeight(1)
 
-            Row(){}
+            Row() {
+            }
             .width(1)
             .height('70%')
-            .border({ width: 0.7,color:'#FCFCFC'})
+            .border({ width: 0.7, color: '#FCFCFC' })
 
-            Row({space:5}){
+            Row({ space: 5 }) {
               Image($r('app.media.bubble'))
                 .fillColor('#FCFCFC')
                 .width(20)
@@ -52,25 +51,28 @@ struct Dianzan_Page {
           .animation({
             duration: 200,
           })
-          Image($r('app.media.ICO28_more')).width(30)
+
+          Image($r('app.media.ICO28_more'))
+            .width(30)
             .height(23)
-            .backgroundColor('#F7F7F7').borderRadius(5)
+            .backgroundColor('#F7F7F7')
+            .borderRadius(5)
             .onClick(() => {
               if (this.isShow == Visibility.Visible) {
                 this.isShow = Visibility.None
-              }else {
+              } else {
                 this.isShow = Visibility.Visible
               }
             })
         }
         .justifyContent(FlexAlign.End)
-        .border({width:1})
+        .border({ width: 1 })
         .layoutWeight(1)
 
       }
       .width('100%')
       .justifyContent(FlexAlign.SpaceBetween)
-      .border({width:1})
+      .border({ width: 1 })
     }
     .padding(20)
     .justifyContent(FlexAlign.Center)

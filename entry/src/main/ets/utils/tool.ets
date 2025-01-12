@@ -16,15 +16,16 @@ export function Arraysc(t: number): number[] {
 
 interface GeneratedTypeLiteralInterface_1 {
   new_avater?: PixelMap;
-  avater_url: string|string[];
+  avater_url: string | string[];
 }
 
-export async function ImageUploadLocal(pic_sum:number,context: Context | undefined): Promise<GeneratedTypeLiteralInterface_1> {
+export async function ImageUploadLocal(pic_sum: number,
+  context: Context | undefined): Promise<GeneratedTypeLiteralInterface_1> {
   const photoSelectOptions = new photoAccessHelper.PhotoSelectOptions()
   const photoPicker = new photoAccessHelper.PhotoViewPicker()
 
   photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE; // 过滤选择媒体文件类型为IMAGE
-  if (pic_sum == 1){
+  if (pic_sum == 1) {
     photoSelectOptions.maxSelectNumber = pic_sum; // 选择媒体文件的最大数目
     const photoSelectResult = await photoPicker.select(photoSelectOptions)
     let imageUrl: string = photoSelectResult.photoUris[0];
@@ -53,12 +54,12 @@ export async function ImageUploadLocal(pic_sum:number,context: Context | undefin
       new_avater: profileImage,
       avater_url: copyFilePath
     }
-  }else {
+  } else {
     photoSelectOptions.maxSelectNumber = pic_sum; // 选择媒体文件的最大数目
     const photoSelectResult = await photoPicker.select(photoSelectOptions)
     let imageUrl: string[] = photoSelectResult.photoUris;
-    let copyFilePath_list:string[] =[]
-    for (let i:number = 0; i<imageUrl.length;i++) {
+    let copyFilePath_list: string[] = []
+    for (let i: number = 0; i < imageUrl.length; i++) {
       hilog.fatal(0x0001, "ImageUploadLocal", '拿到了图片url:' + imageUrl)
 
       let file = fs.openSync(imageUrl[i], fs.OpenMode.READ_ONLY);
@@ -125,7 +126,7 @@ export function image_show(url: string): PixelMap {
   return profileImage
 }
 
-export function upload_local (url:string,context: Context | undefined):string{
+export function upload_local(url: string, context: Context | undefined): string {
 
   let uint8Array: Uint8Array = context!.resourceManager.getRawFileContentSync(url);
   let bf = buffer.from(uint8Array).buffer;
@@ -189,7 +190,7 @@ export function sortPyqDataList(users: personal_data[]): personal_data[] {
   return sortedUsers;
 }
 
-export  function logoutput(obj:object,name:string){
+export function logoutput(obj: object, name: string) {
   let logIndex = 0
   for (let index = 0; index < JSON.stringify(obj).length / 1000; index++) {
     let str = JSON.stringify(obj).substring(logIndex, logIndex + 1000)
@@ -197,7 +198,8 @@ export  function logoutput(obj:object,name:string){
     logIndex = logIndex + 1000
   }
 }
-export function random_sc(avatar:string): comment_obj {
+
+export function random_sc(avatar: string): comment_obj {
   const names = ['菠萝吹雪', '考拉例外', '小明', '小红', '李华'];
   const comments = [
     '真不错啊',
@@ -211,11 +213,11 @@ export function random_sc(avatar:string): comment_obj {
     '太好了',
     '期待更多'
   ];
-  let avatar_url= avatar
+  let avatar_url = avatar
   let nickname = names[Math.floor(Math.random() * names.length)]
   let content = comments[Math.floor(Math.random() * comments.length)]
   let time = new Date().getTime() - Math.floor(Math.random() * 86400000 * 30)
-  let obj:comment_obj = {
+  let obj: comment_obj = {
     comment_avatar: avatar_url,
     comment_nickname: nickname,
     comment_content: content,

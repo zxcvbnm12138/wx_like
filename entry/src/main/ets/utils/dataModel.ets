@@ -1,8 +1,8 @@
 import { upload_local } from './tool';
 
-export interface comment_obj{
-  comment_avatar:string
-  comment_nickname:string
+export interface comment_obj {
+  comment_avatar: string
+  comment_nickname: string
   comment_content: string
   comment_time: number
 }
@@ -37,9 +37,8 @@ export interface pyq_data {
   share_time: number;
   link?: string;
   link_image_url?: string;
-  share_source?:string
+  share_source?: string
 }
-
 
 
 export function convertTime(timestamp: number) {
@@ -88,35 +87,35 @@ export function fake_data(context: Context | undefined) {
       location: '惠州市·惠州奥林匹克体育场',
       love_num: 38,
       comment_num: 4,
-      comment_content:[
+      comment_content: [
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2024-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2024-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2024-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2024-10-29').getTime()
         }
       ],
       show_time: convertTime(new Date('2024-10-29').getTime()),
       share_time: new Date('2024-10-29').getTime(),
-      share_source:'酷狗概念版'
+      share_source: '酷狗概念版'
     },
     {
       content: '感恩遇到的人，经历的事，学到的所有和受到的支持。现在回想年初的目标也在祂的带领下不知不觉的完成了\n\n谢谢今年出现在我身边的一切，因为你们我现在仍然是个开朗的小女孩🥰',
@@ -125,28 +124,28 @@ export function fake_data(context: Context | undefined) {
       location: '江门市·五邑大学',
       love_num: 55,
       comment_num: 4,
-      comment_content:[
+      comment_content: [
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2024-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2024-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2024-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2024-10-29').getTime()
         }
@@ -167,28 +166,28 @@ export function fake_data(context: Context | undefined) {
       location: '惠州市·惠州奥林匹克体育场',
       love_num: 25,
       comment_num: 4,
-      comment_content:[
+      comment_content: [
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2023-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2023-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2023-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2023-10-29').getTime()
         }
@@ -202,28 +201,28 @@ export function fake_data(context: Context | undefined) {
       location: '江门市·五邑大学',
       love_num: 2,
       comment_num: 4,
-      comment_content:[
+      comment_content: [
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2023-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2023-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2023-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2023-10-29').getTime()
         }
@@ -247,58 +246,58 @@ export function fake_data(context: Context | undefined) {
       location: '惠州市·惠州奥林匹克体育场',
       love_num: 10,
       comment_num: 9,
-      comment_content:[
+      comment_content: [
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         }
@@ -313,46 +312,46 @@ export function fake_data(context: Context | undefined) {
       location: '江门市·五邑大学',
       love_num: 40,
       comment_num: 7,
-      comment_content:[
+      comment_content: [
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         },
         {
-          comment_avatar:person_avater,
-          comment_nickname:'菠萝吹雪',
+          comment_avatar: person_avater,
+          comment_nickname: '菠萝吹雪',
           comment_content: '真不错啊',
           comment_time: new Date('2022-10-29').getTime()
         }
@@ -437,10 +436,10 @@ export function fake_all_data(context: Context | undefined) {
           location: '',
           love_num: 0,
           comment_num: 1,
-          comment_content:[
+          comment_content: [
             {
-              comment_avatar:person_avater,
-              comment_nickname:'菠萝吹雪',
+              comment_avatar: person_avater,
+              comment_nickname: '菠萝吹雪',
               comment_content: '真不错啊',
               comment_time: new Date('2024-10-29').getTime()
             }

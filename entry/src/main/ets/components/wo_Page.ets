@@ -55,8 +55,8 @@ export struct Wo_Page {
             .height(70)
 
             Row() {
-              Button({ type: ButtonType.Capsule, stateEffect: true,controlSize:ControlSize.SMALL }){
-                Row(){
+              Button({ type: ButtonType.Capsule, stateEffect: true, controlSize: ControlSize.SMALL }) {
+                Row() {
                   Image($r('app.media.plus'))
                     .width(14)
                     .fillColor('#747474')
@@ -64,15 +64,15 @@ export struct Wo_Page {
                     .fontSize(14)
                     .fontColor('#747474')
                     .lineHeight(16)
-                    .margin({left:1})
+                    .margin({ left: 1 })
                 }
                 .alignItems(VerticalAlign.Center)
 
               }
-                .height(23)
-                .width(60)
-                .backgroundColor(Color.Transparent)
-                .border({ width: 0.7, color: '#747474' })
+              .height(23)
+              .width(60)
+              .backgroundColor(Color.Transparent)
+              .border({ width: 0.7, color: '#747474' })
 
               Button({ type: ButtonType.Circle, stateEffect: true }) {
                 Image($r('app.media.wx_zt'))
@@ -84,7 +84,7 @@ export struct Wo_Page {
               .width(22)
               .height(22)
               .padding(1)
-              .margin({left:10})
+              .margin({ left: 10 })
               .backgroundColor(Color.Transparent)
               .border({ width: 0.7, color: '#747474' })
 

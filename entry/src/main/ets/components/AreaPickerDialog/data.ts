@@ -3906,19 +3906,19 @@ const makeOption = (
 export function useCascaderAreaData() {
   const {
     city_list: city,
-    // county_list: county,
+  // county_list: county,
     province_list: province,
   } = areaList;
 
   const provinceMap = new Map<string, CascaderOption>();
   Object.keys(province).forEach((code) => {
-    provinceMap.set(code.slice(0, 2), makeOption(province[code],  []));
+    provinceMap.set(code.slice(0, 2), makeOption(province[code], []));
   });
 
   const cityMap = new Map<string, CascaderOption>();
 
   Object.keys(city).forEach((code) => {
-    const option = makeOption(city[code],  []);
+    const option = makeOption(city[code], []);
     cityMap.set(code.slice(0, 4), option);
 
     const province = provinceMap.get(code.slice(0, 2));
