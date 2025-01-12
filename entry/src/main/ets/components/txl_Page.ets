@@ -1,3 +1,8 @@
+/*
+ * 通讯录 UI组件
+ */
+
+
 import { pyq_all_Page_data } from '../pages/pyq_all_Page';
 import { image_show } from '../utils/tool';
 

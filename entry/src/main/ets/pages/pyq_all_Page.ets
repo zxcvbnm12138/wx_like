@@ -1,158 +1,90 @@
-import { componentUtils, LengthMetrics, MeasureText, router } from '@kit.ArkUI';
-import { comment_obj, personal_data } from '../utils/dataModel';
-import { image_show } from '../utils/tool';
-import { hilog } from '@kit.PerformanceAnalysisKit';
+/*
+ *公共朋友圈页面
+ */
 
-// 全部人朋友圈页面的数据对象接口
+import { componentUtils, LengthMetrics, router } from '@kit.ArkUI';
+import { comment_obj, personal_data } from '../utils/dataModel';
+import { combineAndSortData, image_show } from '../utils/tool';
+
+// 公共朋友圈数据对象接口
 export interface pyq_all_Page_data {
+  // 微信号
   wx_number: string;
+
+  // 头像URL
   avatar: string;
+
+  // 昵称
   nickname: string;
+
+  // 所在区域
   district: string;
+
+  // 朋友圈前四张图片的URL数组
   pyq_first4_pic: string[];
+
+  // 需分享的内容文本
   content: string;
+
+  // 需要分享的图片的URL数组
   gallery: string[];
+
+  // 定位
   location: string;
+
+  // 点赞数量
   love_num: number;
+
+  // 评论数量
   comment_num: number;
+
+  // 评论内容对象数组
   comment_content: comment_obj[];
+
+  // 展示的时间
   show_time: string;
+
+  // 分享的时间戳
   share_time: number;
+
+  // 需要分享的链接
   link?: string;
+
+  // 需要分享的链接的图片
   link_image_url?: string;
+
+  // 分享来源
   share_source?: string;
+
+  // 朋友圈内容的行数
   content_lines: number
+  // 根据点赞数生成的用户名数组
   like_user: string[]
 }
-
-/*从全局fake_person_data中抽取出每项朋友圈数据，组合成全部人朋友圈页面的数据，
-再通过每项朋友圈的share_time值进行降序，最终变成全部人朋友圈页面的数据*/
-export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
-  let combinedData: pyq_all_Page_data[] = [];
-
-  data.forEach(person => {
-    person.data.pyq_data.forEach(yearData => {
-      yearData.pyq_data_list.forEach(pyqItem => {
-        combinedData.push({
-          wx_number: person.wx_number,
-          avatar: person.data.avatar,
-          nickname: person.data.nickname,
-          district: person.data.district,
-          pyq_first4_pic: person.data.pyq_first4_pic,
-          content: pyqItem.content,
-          gallery: pyqItem.gallery,
-          location: pyqItem.location,
-          love_num: pyqItem.love_num,
-          comment_num: pyqItem.comment_num,
-          comment_content: pyqItem.comment_content,
-          show_time: pyqItem.show_time,
-          share_time: pyqItem.share_time,
-          link: pyqItem?.link,
-          link_image_url: pyqItem?.link_image_url,
-          share_source: pyqItem?.share_source,
-          content_lines: lines_sc(pyqItem.content),
-          like_user: generateRandomNames(pyqItem.love_num)
-        } as pyq_all_Page_data);
-      });
-    });
-  });
-  combinedData.sort((a, b) => b.share_time - a.share_time);
-  return combinedData;
-}
-
-// 获取文本行数
-function lines_sc(content: string): number {
-  const naturalLines = calculateNaturalLines(content);
-  const extraLines = calculateExtraLines(content);
-  return naturalLines + extraLines;
-}
-
-// 计算自然换行的行数
-function calculateNaturalLines(content: string): number {
-  // 去掉换行符
-  const contentWithoutNewLines = content.replace(/\n/g, '');
-
-  // 测量文本宽度
-  const textSize = MeasureText.measureTextSize({
-    textContent: contentWithoutNewLines,
-    fontSize: 17,
-  });
-
-  // 计算行数
-  const containerWidth = 1011.25;
-  const calculatedLines = textSize && typeof textSize.width === 'number'
-    ? Math.ceil(textSize.width / containerWidth)
-    : 0; // 或者设置一个默认值
-
-  return calculatedLines;
-}
-
-// 计算从第二个连续换行符开始的额外换行符的行数
-function calculateExtraLines(content: string): number {
-  // 匹配所有换行符
-  const matches = content.match(/\n/g) || [];
-
-  // 计算从第二个换行符开始的额外换行符的行数
-  let extraLines = 0;
-  let consecutiveNewLines = 0;
-
-  for (const match of matches) {
-    consecutiveNewLines++;
-    if (consecutiveNewLines > 1) {
-      extraLines++;
-    }
-  }
-
-  return extraLines;
-}
-
-
-// 随机生成中文姓名
-function getRandomChineseName(): string {
-  const firstNames =
-    ['赵', '钱', '孙', '李', '周', '吴', '郑', '王', '冯', '陈', '褚', '卫', '蒋', '沈', '韩', '杨', '朱', '秦', '尤',
-      '许'];
-  const lastNames =
-    ['伟', '芳', '娜', '秀英', '敏', '静', '丽', '强', '磊', '军', '洋', '艳', '杰', '娟', '涛', '明', '超', '秀兰',
-      '霞', '平'];
-
-  const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-  const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-
-  return firstName + lastName;
-}
-
-// 根据点赞个数生成对应数量的随机中文名字数组
-function generateRandomNames(love_num: number): string[] {
-  const names: string[] = [];
-  for (let i = 0; i < love_num; i++) {
-    names.push(getRandomChineseName());
-  }
-  return names;
-}
-
 
 @Entry
 @Component
 struct Pyq_all_Page {
-  @State new_comment_content: string = '';
+  @State new_comment_content: string = ''; //评论框内容
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageLink('fake_person_data') fake_person_data: personal_data[] = []
   @StorageLink('pyq_all_Page_data') pyq_all_Page_data: pyq_all_Page_data[] = [];
-  @State listlocation: boolean = false
-  @State bg_url: string = this.fake_person_data[0].data.bg as string
+  @State listlocation: boolean = false // 内容区移动的偏移量，超过168则将置顶栏设为灰色，反之为透明
+  @State bg_url: string = this.fake_person_data[0].data.bg as string // 初始化背景图片URL，从模拟的个人数据中获取
   listScroller: Scroller = new Scroller();
   Textcontroller: TextAreaController = new TextAreaController()
-  @Provide comment_square_show: number = -1
-  @Provide new_comment_index: number = 0
+  @Provide comment_square_show: number = -1 //评论框的层级，控制其显隐
+  @Provide new_comment_index: number = 0 // 需要添加评论的那条朋友圈的索引
 
+  // 页面显示时候的钩子函数
   onPageShow(): void {
+    //更新朋友圈背景图
     this.bg_url = this.fake_person_data[0].data.bg as string
-    // logoutput(this.pyq_all_Page_data, 'pyq_all_Page_data')
   }
 
   build() {
     Stack() {
+      //置顶栏
       Row() {
         Image($r('app.media.back'))
           .width(20)
@@ -177,13 +109,18 @@ struct Pyq_all_Page {
         duration: 200
       })
 
+      //朋友圈内容展示区域
       List({ scroller: this.listScroller }) {
         ListItem() {
+          //背景图 和 头像昵称
           Column() {
+            //背景图
             Image(image_show(this.bg_url))
               .height('33.3%')
               .width('100%')
+            //头像和昵称
             Row({ space: 9 }) {
+              //昵称
               Text(this.fake_person_data[0].data.nickname)
                 .fontSize(20)
                 .fontColor('#ffffff')
@@ -191,6 +128,7 @@ struct Pyq_all_Page {
                 .margin({ top: 8 })
                 .layoutWeight(1)
                 .textAlign(TextAlign.End)
+              //头像
               Image(image_show(this.fake_person_data[0].data.avatar))
                 .width(70)
                 .height(70)
@@ -207,8 +145,10 @@ struct Pyq_all_Page {
         }
         .width('100%')
 
+        //内容展示区域
         ForEach(this.pyq_all_Page_data, (item: pyq_all_Page_data, index) => {
           ListItem() {
+            //朋友圈内容展示组件
             show_data({ item: item, index: index, listScroller: this.listScroller })
           }
           .margin({ top: 32 })
@@ -224,13 +164,13 @@ struct Pyq_all_Page {
       .backgroundColor('#ffffff')
       .scrollBar(BarState.Off)
       .onDidScroll(() => {
-        let location = this.listScroller.currentOffset().yOffset
+        let location = this.listScroller.currentOffset().yOffset //获得列表的偏移量
         this.listlocation = location >= 168
       })
       .expandSafeArea([SafeAreaType.KEYBOARD])
       .zIndex(2)
 
-
+      //评论框
       Row({ space: 10 }) {
         TextArea({ controller: this.Textcontroller, placeholder: '评论', text: $$this.new_comment_content })
           .placeholderColor('##B2B2B2')
@@ -256,22 +196,18 @@ struct Pyq_all_Page {
           .onClick(() => {
             this.comment_square_show = -1
             if (this.new_comment_content !== '') {
-
               let new_comment: comment_obj = {
                 comment_avatar: this.fake_person_data[0].data.avatar,
                 comment_nickname: this.fake_person_data[0].data.nickname,
                 comment_content: this.new_comment_content,
                 comment_time: new Date().getTime()
               }
-              // this.pyq_all_Page_data[this.new_comment_index].comment_content.unshift(new_comment)
-              // this.pyq_all_Page_data[this.new_comment_index].comment_num += 1
-              // this.pyq_all_Page_data = [...this.pyq_all_Page_data]
-              // 假设 index 是要删除的元素的索引
+
               let addElement = this.pyq_all_Page_data[this.new_comment_index];
               let shareTimeToadd = addElement.share_time;
               let wxNumberToadd = addElement.wx_number;
               let yearToadd = new Date(shareTimeToadd).getFullYear();
-              // 遍历 personal_data 数组，找到并删除对应的 pyq_data 元素
+
               this.fake_person_data.forEach(person => {
                 if (person.wx_number === wxNumberToadd) {
                   person.data.pyq_data.forEach(yearData => {
@@ -305,8 +241,9 @@ struct Pyq_all_Page {
       .height(55)
 
     }
+    //点击空白区域控制评论框的层级为最低同时退出编辑状态，达到隐藏效果
     .onClick(() => {
-      this.Textcontroller.stopEditing()
+      this.Textcontroller.stopEditing() //使评论框推出编辑状态
       this.comment_square_show = -1
     })
     .width('100%')
@@ -317,6 +254,7 @@ struct Pyq_all_Page {
   }
 }
 
+// 朋友圈文本内容展示组件
 @Component
 struct is_expend {
   @State textover: string = '全文'
@@ -335,8 +273,8 @@ struct is_expend {
         .width('100%')
         .fontSize(17)
         .onAppear(() => {
-          this.content_lines = this.controller.getLayoutManager().getLineCount()
-          hilog.fatal(0x0001, 'ohos.arkts', 'onAppear' + this.controller.getLayoutManager().getLineCount())
+          this.content_lines = this.controller.getLayoutManager().getLineCount() //获取文本的行数
+          // hilog.fatal(0x0001, 'ohos.arkts', 'onAppear' + this.controller.getLayoutManager().getLineCount())
         })
       if (this.content_lines > 5) {
         Text(this.textover)
@@ -359,6 +297,8 @@ struct is_expend {
   }
 }
 
+
+//朋友圈展示组件
 @Component
 struct show_data {
   @State isShow: Visibility = Visibility.Hidden;
@@ -373,6 +313,7 @@ struct show_data {
 
   build() {
     Row({ space: 5 }) {
+      //头像
       Column() {
         Image(image_show(this.item!.avatar))
           .width(50)
@@ -381,15 +322,20 @@ struct show_data {
           .borderRadius(8)
       }
 
+
       Column() {
+        //昵称
         Text(this.item!.nickname)
           .border({ width: 0 })
           .fontColor('#586b95')
           .fontSize(18)
 
+        //文本内容
         is_expend({ item: this.item, index: this.index })
 
+        //判断分享的是链接还是图片
         if (this.item!.link && this.item!.link !== '') {
+          //链接展示
           Row() {
             Row() {
               Image(this.item!.link_image_url)
@@ -418,30 +364,45 @@ struct show_data {
           .backgroundColor('#F7F7F7')
           .margin({ top: 10 })
         } else {
+          //图片展示
           Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(5), cross: LengthMetrics.vp(5) } }) {
             ForEach(this.item!.gallery, (pic: string, index) => {
-              Image(image_show(pic))
-                .objectFit(ImageFit.Cover)
-                .width(93)
-                .height(93)
+              if (this.item!.gallery.length == 1) {
+                Image(image_show(pic))
+                  .objectFit(ImageFit.Contain)
+                  .width(110)
+              } else {
+                Image(image_show(pic))
+                  .objectFit(ImageFit.Cover)
+                  .width(93)
+                  .height(93)
+              }
             })
           }
           .width('100%')
           .margin({ top: 10 })
         }
 
+        //定位
         Text(this.item!.location)
           .fontColor('#586b95')
           .fontSize(14)
           .margin({ top: 5 })
 
+        //发布时间、删除、点赞与评论以及触发按钮区域
         Row() {
+          // 发布时间和删除按钮区域
           Row({ space: 5 }) {
+            //发布时间
             Text(this.item!.show_time).fontColor('#BEBEBE').fontSize(12)
+            //判断是否有分享来源
             if (this.item!.share_source && this.item!.share_source !== '') {
+              //分享来源
               Text(this.item!.share_source).fontColor('#BEBEBE').fontSize(12)
             }
+            //判断是否是主用户，默认个人朋友圈数据中的第一个元素为主用户
             if (this.item!.wx_number == this.fake_person_data[0].wx_number) {
+              //删除按钮
               Image($r('app.media.del'))
                 .width(16)
                 .height(16)
@@ -468,12 +429,15 @@ struct show_data {
             }
           }
 
+          //点赞与评论按钮区域
           Stack() {
+            // 点赞与评论 区域
             Row() {
+              // 点赞
               Row({ space: 5 }) {
                 Image($r(this.is_like ? 'app.media.red_like' : 'app.media.love'))
                   .width(16)
-                  .fillColor(this.is_like ? Color.Red :'#FCFCFC')
+                  .fillColor(this.is_like ? Color.Red : '#FCFCFC')
                 Text('赞')
                   .fontColor('#FCFCFC')
                   .fontSize(16)
@@ -532,12 +496,14 @@ struct show_data {
 
               })
 
+              // 分界线
               Row() {
               }
               .width(1)
               .height('70%')
               .border({ width: 0.7, color: '#FCFCFC' })
 
+              // 评论
               Row({ space: 5 }) {
                 Image($r('app.media.bubble'))
                   .fillColor('#FCFCFC')
@@ -572,11 +538,12 @@ struct show_data {
             .zIndex(1)
             .margin({ right: 32 })
 
+            //触发 点赞与评论 的按钮
             Image($r('app.media.ICO28_more'))
               .width(30)
               .height(23)
               .backgroundColor('#F7F7F7')
-              .borderRadius(5)
+              .borderRadius(5)//控制 点赞与评论 的显隐
               .onClick(() => {
                 if (this.isShow == Visibility.Visible) {
                   this.isShow = Visibility.None
@@ -595,10 +562,13 @@ struct show_data {
         .width('100%')
         .justifyContent(FlexAlign.SpaceBetween)
 
+        //点赞 和 评论展示区域
         List({ space: 0 }) {
+          //判断点赞数是否为0
           if (this.item!.love_num !== 0) {
             ListItem() {
               Row() {
+                // 点赞的用户名展示区
                 Text() {
                   Span('♡ ')
                   ForEach(this.item?.like_user, (like: string, index) => {
@@ -616,9 +586,11 @@ struct show_data {
               .alignItems(VerticalAlign.Top)
             }.padding(5)
           }
+          //判断评论数是否为0
           if (this.item!.comment_num !== 0) {
             ListItem() {
               Column({ space: 5 }) {
+                // 评论内容
                 ForEach(this.item!.comment_content, (comment_item: comment_obj, index) => {
                   Text() {
                     Span(comment_item.comment_nickname + ': ')
@@ -649,4 +621,3 @@ struct show_data {
     .alignItems(VerticalAlign.Top)
   }
 }
-

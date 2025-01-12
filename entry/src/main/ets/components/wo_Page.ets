@@ -1,3 +1,7 @@
+/*
+ * 我 UI组件
+ */
+
 import { personal_data } from '../utils/dataModel';
 import { image_show } from '../utils/tool';
 

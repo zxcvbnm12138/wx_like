@@ -1,3 +1,7 @@
+/*
+ * 朋友圈图片展示页面
+ */
+
 import { router } from '@kit.ArkUI';
 import { pyq_data } from '../utils/dataModel';
 import { formatTime, image_show } from '../utils/tool';
@@ -16,12 +20,12 @@ struct Pyq_detail_Page {
 
   aboutToAppear(): void {
     const res = router.getParams() as result
-    this.fake_pyq_detail_data = res.result
-
+    this.fake_pyq_detail_data = res.result // 接收来自个人朋友圈页面的数据
   }
 
   build() {
     Column() {
+      //置顶栏
       Row() {
         Image($r('app.media.back'))
           .width(20)
@@ -51,7 +55,9 @@ struct Pyq_detail_Page {
       .padding({ top: px2vp(this.topRectHeight), left: 10, right: 10 })
       .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
 
+      //图片和文本内容展示区域
       Stack() {
+        //图片
         Swiper() {
           ForEach(this.fake_pyq_detail_data?.gallery, (item: string, index) => {
             Image(image_show(item))
@@ -68,6 +74,7 @@ struct Pyq_detail_Page {
         })
 
 
+        //文本内容
         Text(this.fake_pyq_detail_data?.content)
           .width('60%')
           .maxLines(2)
@@ -83,6 +90,7 @@ struct Pyq_detail_Page {
       .alignContent(Alignment.BottomStart)
 
 
+      //底栏
       Row() {
         Row() {
           Image($r('app.media.love'))

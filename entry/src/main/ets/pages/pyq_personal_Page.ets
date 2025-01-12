@@ -1,5 +1,10 @@
+/*
+ * 个人朋友圈页面
+ */
+
 import { CustomContentDialog, router } from '@kit.ArkUI';
 import {
+  combineAndSortData,
   formatTime,
   image_show,
   ImageUploadLocal,
@@ -21,17 +26,19 @@ import { Pyq_Layout } from '../components/pyq_Layout';
 import AreaPickerDialog from '../components/AreaPickerDialog/AreaPickerDialog';
 import { common } from '@kit.AbilityKit';
 import { Picture_analysis } from '../components/Picture_analysis';
-import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
+import { pyq_all_Page_data } from './pyq_all_Page';
 
 interface GeneratedTypeLiteralInterface_1 {
   protocol: string;
   hostname: string;
 }
 
+//来自朋友圈详情的数据
 interface data_from_dianzanPage {
   new_fake_personal_data: pyq_data
 }
 
+// 解析url的函数
 function parseUrl(url: string): GeneratedTypeLiteralInterface_1 {
   const regex = /^(https?:\/\/)?([^\/]+)/;
   const match = url.match(regex);
@@ -136,19 +143,6 @@ struct Pyq_all_Page {
           buttonStyle: ButtonStyleMode.EMPHASIZED,
           background: '#00E050',
           action: () => {
-            // hilog.fatal(1, '新数据',
-            //   'new_wx_number:' + this.new_wx_number + '\n' +
-            //     'new_avater:' + this.new_avater + '\n' +
-            //     'new_nickname:' + this.new_nickname + '\n' +
-            //     'new_district:' + this.new_district + '\n' +
-            //     'new_content:' + this.new_content + '\n' +
-            //     'new_gallery:' + this.new_gallery.toString() + '\n' +
-            //     'new_location:' + this.new_location + '\n' +
-            //     'new_love_sum:' + this.new_love_sum + '\n' +
-            //     'new_comment_num:' + this.new_comment_num + '\n' +
-            //     'new_comment_content:' + this.new_comment_content.toString() + '\n' +
-            //     'new_share_time:' + this.new_share_time + '\n'
-            // )
 
             //判断时候有新图片，如果有新图片就直接插入到pyq_first4_pic数组中
             if (this.new_gallery.length !== 0) {
@@ -580,7 +574,6 @@ struct Pyq_all_Page {
   }
 
   aboutToAppear(): void {
-    // this.back_pyq_personal_Page_data = this.fake_personal_data[0]
     this.old_wx_number = this.fake_personal_data[0].wx_number
     //省市区选择器自定义弹窗
     this.areaController = new CustomDialogController({
@@ -627,6 +620,7 @@ struct Pyq_all_Page {
 
   build() {
     Stack() {
+      //置顶栏
       Row() {
         Image($r('app.media.back'))
           .width(20)
@@ -651,7 +645,9 @@ struct Pyq_all_Page {
         duration: 200
       })
 
+      //朋友圈展示区
       List({ scroller: this.listScroller }) {
+        //背景图、昵称、头像
         ListItem() {
           Column() {
             Image(image_show(this.bg_url))
@@ -689,6 +685,7 @@ struct Pyq_all_Page {
         }
         .width('100%')
 
+        // 今天
         ListItem() {
           Row({ space: 5 }) {
             Text('今天').fontSize(22)
@@ -714,8 +711,11 @@ struct Pyq_all_Page {
         .margin({ top: 32 })
         .padding({ right: 10, left: 10 })
 
+
+        //内容展示区
         ForEach(this.pyq_personal_Page_data.data.pyq_data, (item: personal_every_year_pyq_data, index) => {
 
+          //年份
           if (item.pyq_data_list.length !== 0) {
             ListItem() {
               Text(item.year.toString() + '年')
@@ -729,6 +729,7 @@ struct Pyq_all_Page {
           ForEach(item.pyq_data_list, (item: pyq_data, index) => {
             ListItem() {
               Row({ space: 5 }) {
+                // 月份
                 Text() {
                   Span(new Date(item.share_time).getDate().toString().padStart(2, '0'))
                   Span((new Date(item.share_time).getMonth() + 1).toString() + '月')
@@ -744,8 +745,10 @@ struct Pyq_all_Page {
                 .fontWeight(FontWeight.Bold)
                 .padding({ top: 2 })
 
+                // 判断是链接还是图片
                 if (item.link && item.link !== '') {
                   Row() {
+                    //链接的图片
                     Row() {
                       Image(item.link_image_url)
                         .width(30)
@@ -759,6 +762,7 @@ struct Pyq_all_Page {
                     .height(40)
                     .border({ width: 0 })
 
+                    //链接的内容
                     Text(item.link)
                       .fontSize(18)
                       .maxLines(2)
@@ -788,8 +792,7 @@ struct Pyq_all_Page {
                     Pyq_Layout({
                       picture_num: item.gallery.length,
                       picture_list: item.gallery
-                    })
-                      .onClick(() => {
+                    }).onClick(() => {
                         router.pushUrl({
                           url: 'pages/pyq_detail_Page',
                           params: {
@@ -797,6 +800,8 @@ struct Pyq_all_Page {
                           }
                         })
                       })
+
+                    // 朋友圈的文本内容
                     Row() {
                       Text(item.content)
                         .backgroundColor(item.gallery.length == 0 ? '#F7F7F7' : '')

@@ -1,3 +1,6 @@
+/*
+ * 朋友圈图片布局 组件
+ */
 import { image_show } from '../utils/tool'
 
 @Component

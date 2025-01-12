@@ -1,3 +1,7 @@
+/*
+ * 分享 UI组件
+ */
+
 import { router } from '@kit.ArkUI';
 
 

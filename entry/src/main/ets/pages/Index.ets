@@ -1,12 +1,18 @@
+/*
+ * 这里是主页面 包含了：聊天 通讯录 发现 我
+ * 在主页面进行了数据初始化，并且将其存储到全局存储中
+ * pyq_all_Page_data：公共朋友圈 数据
+ * fake_person_data：个人朋友圈 数据 ，默认个人朋友圈数据中的第一个元素为主用户
+ */
+
 import { Chat_Page } from '../components/chat_Page';
 import { Fx_Page } from '../components/fx_Page';
 import { common } from '@kit.AbilityKit';
 import { fake_all_data, fake_data, personal_data } from '../utils/dataModel';
-import { sortPyqData, sortPyqDataList } from '../utils/tool';
-import { combineAndSortData, pyq_all_Page_data } from './pyq_all_Page';
+import { combineAndSortData, sortPyqData, sortPyqDataList } from '../utils/tool';
+import { pyq_all_Page_data } from './pyq_all_Page';
 import { Txl_Page } from '../components/txl_Page';
 import { Wo_Page } from '../components/wo_Page';
-
 interface tabBar {
   tabIndex: number
   url: string,
@@ -28,14 +34,20 @@ struct Index {
   private context = getContext(this) as common.UIAbilityContext;
 
   aboutToAppear(): void {
+    // 生成假数据以模拟真实场景中的个人信息
     this.fake_person_data = fake_data(this.context.getApplicationContext())
+    // 将所有假数据添加到 个人朋友圈数据 中
     this.fake_person_data.push(fake_all_data(this.context.getApplicationContext()))
 
+    // 对个人朋友圈数据进行按照年份进行降序排序
     this.fake_person_data = sortPyqData(this.fake_person_data)
+    // 进一步对个人朋友圈数据列表按照月份进行降序排序
     this.fake_person_data = sortPyqDataList(this.fake_person_data)
 
+    // 综合处理并排序所有数据，生成 公共朋友圈数据
     this.pyq_all_Page_data = combineAndSortData(this.fake_person_data)
 
+    // 将处理后的所有数据保存到应用存储中，以便后续使用
     AppStorage.setOrCreate('pyq_all_Page_data', this.pyq_all_Page_data)
     AppStorage.setOrCreate('fake_person_data', this.fake_person_data)
   }

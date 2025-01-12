@@ -1,16 +1,23 @@
+/*
+ * 个人详情页
+ */
+
+
 import { router } from '@kit.ArkUI';
 import { personal_data } from '../utils/dataModel';
 import { image_show } from '../utils/tool';
+
 @Entry
 @Component
 struct Detail_Page {
-  @StorageProp('bottomRectHeight') bottomRectHeight: number = 0;
   @StorageProp('topRectHeight') topRectHeight: number = 0;
   @StorageProp('fake_person_data') fake_person_data: personal_data[] = []
 
   build() {
     Stack() {
+      // 置顶栏
       Row() {
+        // 返回按钮
         Image($r('app.media.back'))
           .width(20)
           .onClick(() => {
@@ -26,29 +33,37 @@ struct Detail_Page {
       .padding({ top: px2vp(this.topRectHeight), left: 10, right: 10 })
       .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
 
+      // 内容展示区域
       Column({ space: 10 }) {
+
         Row({ space: 20 }) {
+          // 头像
           Image(image_show(this.fake_person_data[0].data.avatar))
             .width(70)
             .height(70)
             .objectFit(ImageFit.Cover)
             .borderRadius(5)
             .border({ width: 0 })
+          //信息区
           Column({ space: 3 }) {
             Row() {
+              //昵称
               Text(this.fake_person_data[0].data.nickname)
                 .fontSize(20)
                 .fontColor(Color.Black)
                 .lineHeight(25)
+              //性别标志
               Image($r('app.media.male'))
                 .width(16)
                 .margin({ left: 5 })
             }
 
+            // 微信号
             Text('微信号：' + this.fake_person_data[0].wx_number)
               .fontSize(15)
               .fontColor('#BEBEBE')
               .lineHeight(19)
+            //地区
             Text('地区：' +
             this.fake_person_data[0].data.district)
               .fontSize(15)
@@ -64,10 +79,12 @@ struct Detail_Page {
         .padding({ top: 5, left: 10, right: 10 })
         .alignItems(VerticalAlign.Top)
 
+        // 朋友圈信息区
         Row() {
           Text('朋友圈')
             .fontSize(16)
             .lineHeight(20)
+          // 朋友圈前四张图片
           Row({ space: 10 }) {
             ForEach(this.fake_person_data[0].data.pyq_first4_pic, (item: string, index) => {
               if (index < 4) {
@@ -91,6 +108,7 @@ struct Detail_Page {
           })
         })
 
+        // 发消息 按钮
         Row({ space: 7 }) {
           Image($r('app.media.chat')).width(23).fillColor('#586b95')
           Text('发消息').fontColor('#586b95').fontSize(18)

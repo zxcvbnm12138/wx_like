@@ -4,8 +4,6 @@ import { useCascaderAreaData } from './data'
 export default struct AreaPicker {
   @State cascade: TextCascadePickerRangeContent[] = useCascaderAreaData() //省市区列表数据
   @Link value: string[] //选中值例如：['北京市','北京市','东城区']
-  private onChange: (value: string[], index: number[]) => void = () => {
-  } //选择改变回调函数
 
   build() {
     TextPicker({ range: this.cascade, value: this.value })
@@ -26,4 +24,7 @@ export default struct AreaPicker {
       })
 
   }
+
+  private onChange: (value: string[], index: number[]) => void = () => {
+  } //选择改变回调函数
 }

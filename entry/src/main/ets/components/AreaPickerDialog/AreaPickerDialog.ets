@@ -1,13 +1,14 @@
-import AreaPicker from './AreaPicker'
+import AreaPicker from './AreaPicker';
 
 @CustomDialog
 export default struct AreaPickerDialog {
-  private dialogController: CustomDialogController //弹窗控制器
   @State value: string[] = [] //选中值
+  private dialogController: CustomDialogController //弹窗控制器
+  private defaultValue: string[] = []; //首次打开选中值
+
   //确认关闭选择改变回调
   public onChange: (value: string[]) => void = () => {
   }
-  private defaultValue: string[] = []; //首次打开选中值
 
   aboutToAppear(): void {
     //记录打开时候的默认值

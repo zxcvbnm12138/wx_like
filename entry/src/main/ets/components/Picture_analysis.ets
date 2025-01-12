@@ -1,3 +1,6 @@
+/*
+ * 解析图片 组件
+ */
 import { image_show } from '../utils/tool';
 import { common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';

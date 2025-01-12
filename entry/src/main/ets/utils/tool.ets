@@ -4,6 +4,8 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { image } from '@kit.ImageKit';
 import { buffer } from '@kit.ArkTS';
 import { comment_obj, personal_data, personal_every_year_pyq_data } from './dataModel';
+import { pyq_all_Page_data } from '../pages/pyq_all_Page';
+import { MeasureText } from '@kit.ArkUI';
 
 export function Arraysc(t: number): number[] {
   let numbers: number[] = [];
@@ -224,4 +226,110 @@ export function random_sc(avatar: string): comment_obj {
     comment_time: time
   }
   return obj
+}
+
+/*从全局fake_person_data中抽取出每项朋友圈数据，组合成公共朋友圈数据，
+再通过每项朋友圈的share_time值进行降序排序，最终变成公共朋友圈数据*/
+export function combineAndSortData(data: personal_data[]): pyq_all_Page_data[] {
+  let combinedData: pyq_all_Page_data[] = [];
+
+  data.forEach(person => {
+    person.data.pyq_data.forEach(yearData => {
+      yearData.pyq_data_list.forEach(pyqItem => {
+        combinedData.push({
+          wx_number: person.wx_number,
+          avatar: person.data.avatar,
+          nickname: person.data.nickname,
+          district: person.data.district,
+          pyq_first4_pic: person.data.pyq_first4_pic,
+          content: pyqItem.content,
+          gallery: pyqItem.gallery,
+          location: pyqItem.location,
+          love_num: pyqItem.love_num,
+          comment_num: pyqItem.comment_num,
+          comment_content: pyqItem.comment_content,
+          show_time: pyqItem.show_time,
+          share_time: pyqItem.share_time,
+          link: pyqItem?.link,
+          link_image_url: pyqItem?.link_image_url,
+          share_source: pyqItem?.share_source,
+          content_lines: lines_sc(pyqItem.content),
+          like_user: generateRandomNames(pyqItem.love_num)
+        } as pyq_all_Page_data);
+      });
+    });
+  });
+  combinedData.sort((a, b) => b.share_time - a.share_time);
+  return combinedData;
+}
+
+// 获取文本行数
+export function lines_sc(content: string): number {
+  const naturalLines = calculateNaturalLines(content);
+  const extraLines = calculateExtraLines(content);
+  return naturalLines + extraLines;
+}
+
+// 计算自然换行的行数
+function calculateNaturalLines(content: string): number {
+  // 去掉换行符
+  const contentWithoutNewLines = content.replace(/\n/g, '');
+
+  // 测量文本宽度
+  const textSize = MeasureText.measureTextSize({
+    textContent: contentWithoutNewLines,
+    fontSize: 17,
+  });
+
+  // 计算行数
+  const containerWidth = 1011.25;
+  const calculatedLines = textSize && typeof textSize.width === 'number'
+    ? Math.ceil(textSize.width / containerWidth)
+    : 0; // 或者设置一个默认值
+
+  return calculatedLines;
+}
+
+// 计算从第二个连续换行符开始的额外换行符的行数
+function calculateExtraLines(content: string): number {
+  // 匹配所有换行符
+  const matches = content.match(/\n/g) || [];
+
+  // 计算从第二个换行符开始的额外换行符的行数
+  let extraLines = 0;
+  let consecutiveNewLines = 0;
+
+  for (const match of matches) {
+    consecutiveNewLines++;
+    if (consecutiveNewLines > 1) {
+      extraLines++;
+    }
+  }
+
+  return extraLines;
+}
+
+
+// 随机生成中文姓名
+function getRandomChineseName(): string {
+  const firstNames =
+    ['赵', '钱', '孙', '李', '周', '吴', '郑', '王', '冯', '陈', '褚', '卫', '蒋', '沈', '韩', '杨', '朱', '秦', '尤',
+      '许'];
+  const lastNames =
+    ['伟', '芳', '娜', '秀英', '敏', '静', '丽', '强', '磊', '军', '洋', '艳', '杰', '娟', '涛', '明', '超', '秀兰',
+      '霞', '平'];
+
+  const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+  const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+
+  return firstName + lastName;
+}
+
+// 根据点赞个数生成对应数量的随机中文名字数组
+export function generateRandomNames(love_num: number): string[] {
+  const names: string[] = [];
+  for (let i = 0; i < love_num; i++) {
+    names.push(getRandomChineseName());
+  }
+  return names;
 }
